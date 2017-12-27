@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{603AFCC1-DF38-4864-864B-0F604478963D}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>NetworkCommunication</RootNamespace>
+    <AssemblyName>NetworkCommunication</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AlarmReceiver.cs" />
+    <Compile Include="DataRequestGenerator.cs" />
+    <Compile Include="DataRequestReceiver.cs" />
+    <Compile Include="DataRequestSender.cs" />
+    <Compile Include="DataRequestType.cs" />
+    <Compile Include="DiscoveryMessageGenerator.cs" />
+    <Compile Include="DiscoveryMessageReceiver.cs" />
+    <Compile Include="DiscoveryMessageSender.cs" />
+    <Compile Include="EcgLead.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Informations.cs" />
+    <Compile Include="StaticRng.cs" />
+    <Compile Include="StoppableTask.cs" />
+    <Compile Include="VitalSignRequestData.cs" />
+    <Compile Include="VitalSignsStorer.cs" />
+    <Compile Include="ParserHelpers.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SensorType.cs" />
+    <Compile Include="Simulators\ConstantSimulator.cs" />
+    <Compile Include="Simulators\EcgSimulator.cs" />
+    <Compile Include="Simulators\ISimulator.cs" />
+    <Compile Include="Simulators\RespirationSimulator.cs" />
+    <Compile Include="Simulators\SimulationSettings.cs" />
+    <Compile Include="Simulators\SpO2Simulator.cs" />
+    <Compile Include="VitalSignDataStreamer.cs" />
+    <Compile Include="VitalSignMessageBuilder.cs" />
+    <Compile Include="VitalSignPacketParser.cs" />
+    <Compile Include="VitalSignType.cs" />
+    <Compile Include="VitalSignValue.cs" />
+    <Compile Include="Waveform.cs" />
+    <Compile Include="WaveformData.cs" />
+    <Compile Include="VitalSignData.cs" />
+    <Compile Include="WaveformMessageBuilder.cs" />
+    <Compile Include="WaveformPacketParser.cs" />
+    <Compile Include="WaveformReceiver.cs" />
+    <Compile Include="WaveformRequestData.cs" />
+    <Compile Include="WaveformStorer.cs" />
+    <Compile Include="WaveformStreamer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
