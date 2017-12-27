@@ -53,6 +53,7 @@
     <Compile Include="EcgLead.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Informations.cs" />
+    <Compile Include="Simulators\NibpSimualtor.cs" />
     <Compile Include="StaticRng.cs" />
     <Compile Include="StoppableTask.cs" />
     <Compile Include="VitalSignRequestData.cs" />

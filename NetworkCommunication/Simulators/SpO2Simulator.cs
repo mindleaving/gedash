@@ -19,7 +19,7 @@ namespace NetworkCommunication.Simulators
             this.settings = settings;
         }
 
-        public byte QualityByte { get; } = 0xe0;
+        public byte QualityByte { get; } = 0xa0;
         public SensorType SensorType { get; } = SensorType.SpO2;
         public short SpO2 { get; set; } = 99;
         public short SpO2LowerLimit { get; set; } = 90;

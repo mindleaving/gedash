@@ -11,7 +11,7 @@ namespace NetworkCommunication
         readonly IPAddress ourIpAddress;
         readonly IList<SensorType> sensorTypes;
         readonly Dictionary<SensorType, ISimulator> simulators;
-        uint sequenceNumber = 1;
+        uint sequenceNumber = 0x00010001;
 
         public VitalSignMessageBuilder(
             IList<SensorType> sensorTypes,
@@ -20,9 +20,37 @@ namespace NetworkCommunication
         {
             if(!sensorTypes.All(simulators.ContainsKey))
                 throw new ArgumentException("Not simulators for all sensor types");
-            this.sensorTypes = sensorTypes;
+            this.sensorTypes = sensorTypes
+                .Concat(new []{ SensorType.Ecg })
+                .OrderBy(GetSensorOrder)
+                .ToList();
             this.simulators = simulators;
             this.ourIpAddress = ourIpAddress;
+        }
+
+        int GetSensorOrder(SensorType sensorType)
+        {
+            switch (sensorType)
+            {
+                case SensorType.Ecg:
+                    return 0;
+                case SensorType.EcgLeadI:
+                    return 101;
+                case SensorType.EcgLeadII:
+                    return 102;
+                case SensorType.EcgLeadIII:
+                    return 103;
+                case SensorType.EcgLeadPrecordial:
+                    return 104;
+                case SensorType.RespirationRate:
+                    return 1;
+                case SensorType.SpO2:
+                    return 2;
+                case SensorType.BloodPressure:
+                    return 3;
+                default:
+                    return 999;
+            }
         }
 
         public byte[] Build()
@@ -42,17 +70,22 @@ namespace NetworkCommunication
                 .Concat(new byte[2])
                 .Concat(ipAddressBytes)
                 .Concat(new byte[2])
-                .Concat(new byte[] { 0x00, 0xc9, 0x00, 0x14, 0x00, 0x01 })
-                .Concat(new byte[40])
+                .Concat(new byte[] { 0x00, 0xc9, 0x00, 0x14 })
+                .Concat(sequenceNumberBytes)
+                .Concat(new byte[38])
                 .Concat(new byte[] { 0x01, 0xaa });
-            var ipSectionSuffix = new byte[] {0x00, 0x06, 0x06, 0x01, (byte)(sensorTypes.Count+1) }; // +1 for ECG section
+            var ipSectionSuffix = new byte[] {0x00, 0x06, 0x06, 0x01, (byte)sensorTypes.Count };
             var combinedSensorBytes = new List<byte>();
-            var ecgHeartrateSection = BuildEcgHeartrateSection();
             foreach (var sensorType in sensorTypes)
             {
                 var dataSource = GetDataSource(sensorType);
-                var sensorVitalSigns = dataSource.GetVitalSignValues();
+                var sensorVitalSigns = dataSource is EcgSimulator && sensorType != SensorType.Ecg
+                    ? new List<VitalSignValue>()
+                    : dataSource.GetVitalSignValues();
                 var sensorCodeBytes = GetSensorCodeBytes(sensorType);
+                var qualityByte = dataSource is EcgSimulator && sensorType != SensorType.Ecg
+                    ? (byte)0x00
+                    : dataSource.QualityByte;
                 var valueBytes = new List<byte>();
                 var alarmLimitBytes = new List<byte>();
                 for (int valueIdx = 0; valueIdx < 3; valueIdx++)
@@ -70,21 +103,29 @@ namespace NetworkCommunication
                     else
                     {
                         valueBytes.AddRange(new byte[] { 0x80, 0x00 });
-                        alarmLimitBytes.AddRange(new byte[4]);
+                        if(dataSource is EcgSimulator && sensorType != SensorType.Ecg)
+                            alarmLimitBytes.AddRange(new byte[] { 0xff, 0xec, 0x00, 0x14});
+                        else
+                            alarmLimitBytes.AddRange(new byte[4]);
                     }
                 }
 
-                var settingsBytes = GetSettingsBytes(sensorType, sensorCodeBytes);
-                var sensorBytes = new[] {counterLastByte}
-                    .Concat(sensorCodeBytes)
-                    .Concat(new []{dataSource.QualityByte})
+                var unknownValueBytes = GetUnknownValueBytes(sensorType, sensorCodeBytes);
+                var sensorConfig1Bytes = GetSensorConfig1Bytes(sensorType, sensorCodeBytes);
+                var sensorConfig2Bytes = GetSensorConfig2Bytes(sensorType, sensorCodeBytes);
+                var sensorConfig3Bytes = GetSensorConfig3Bytes(sensorType, sensorCodeBytes);
+                var sensorPriorityByte = GetSensorPriorityByte(sensorType);
+                var sensorBytes = sensorCodeBytes
+                    .Concat(new []{qualityByte})
                     .Concat(valueBytes)
-                    .Concat(new byte[14])
-                    .Concat(settingsBytes)
-                    .Concat(new byte[] { 0x00, 0x00 })
+                    .Concat(unknownValueBytes)
+                    .Concat(sensorConfig1Bytes)
                     .Concat(alarmLimitBytes)
-                    .Concat(new byte[22])
-                    .Concat(new byte[] { 0x0b, sensorCodeBytes[2], 0x00, 0x00 })
+                    .Concat(new byte[2])
+                    .Concat(sensorConfig2Bytes)
+                    .Concat(sensorConfig3Bytes)
+                    .Concat(new byte[] { sensorPriorityByte, sensorCodeBytes[2], 0x00, 0x00 })
+                    .Concat(new[] {counterLastByte})
                     .ToArray();
                 combinedSensorBytes.AddRange(sensorBytes);
             }
@@ -92,73 +133,126 @@ namespace NetworkCommunication
             var message = ipAddressSection1
                 .Concat(ipAddressSection2)
                 .Concat(ipSectionSuffix)
-                .Concat(ecgHeartrateSection)
                 .Concat(combinedSensorBytes)
-                .Concat(new byte[] {counterLastByte, 0x00 })
+                .Concat(new byte[] { 0x00 })
                 .ToArray();
             sequenceNumber++;
             return message;
         }
 
-        static byte[] GetSettingsBytes(SensorType sensorType, byte[] sensorCodeBytes)
+        byte[] GetUnknownValueBytes(SensorType sensorType, byte[] sensorCodeBytes)
         {
+            byte categoryByte = 0x0c;
             switch (sensorType)
             {
-                case SensorType.RespirationRate:
-                    var ecgLead = EcgLead.II;
-                    var ecgLeadByte = GetRespirationLeadIndicator(ecgLead);
-                    return new byte[]{ 0x03, sensorCodeBytes[2], 0x86, ecgLeadByte };
+                case SensorType.Ecg:
+                    return new byte[] { categoryByte, sensorCodeBytes[2], 0x80, 0x80 }
+                        .Concat(Enumerable.Repeat((byte)0x80, 10))
+                        .ToArray();
+                case SensorType.BloodPressure:
+                    return new byte[] { categoryByte, sensorCodeBytes[2], 0x80, 0x01 }
+                        .Concat(new byte[10])
+                        .ToArray();
                 default:
-                    return new byte[] { 0x03, sensorCodeBytes[2], 0x00, 0x00 };
+                    return new byte[14];
             }
         }
 
-        byte[] BuildEcgHeartrateSection()
+        static byte[] GetSensorConfig1Bytes(SensorType sensorType, byte[] sensorCodeBytes)
         {
-            var sensorCodeBytes = GetSensorCodeBytes(SensorType.Ecg);
-            var validityByte = (byte) 0x08;
-            var combinedHeartrateBytes = new List<byte>();
-            var ecgSimulator = simulators.Values.OfType<EcgSimulator>().FirstOrDefault();
-            if (ecgSimulator != null)
+            byte categoryByte = 0x03;
+            switch (sensorType)
             {
-                var heartRateUshort = ParserHelpers.ToUShort(ecgSimulator.Heartrate);
-                var heartrateBytes = BitConverter.GetBytes(heartRateUshort).Reverse();
-                combinedHeartrateBytes.AddRange(heartrateBytes);
-                var vesUshort = ParserHelpers.ToUShort(ecgSimulator.VentricularExtraSystoles);
-                var vesBytes = BitConverter.GetBytes(vesUshort).Reverse();
-                combinedHeartrateBytes.AddRange(vesBytes);
-                combinedHeartrateBytes.AddRange(new byte[]{ 0x00, 0x00 });
-                combinedHeartrateBytes.AddRange(new byte[] { 0x0c, 0x3a });
-                combinedHeartrateBytes.AddRange(Enumerable.Repeat((byte)0x80, 12));
+                case SensorType.Ecg:
+                    var selectedLead = EcgLead.II;
+                    var selectedLeadCode = GetEcgLeadByte(selectedLead);
+                    return new byte[] {categoryByte, sensorCodeBytes[2], 0x10, 0x80, 0x00, selectedLeadCode};
+                case SensorType.SpO2:
+                    return new byte[] {categoryByte, sensorCodeBytes[2], 0xa0, 0x20, 0x00, 0x09};
+                case SensorType.RespirationRate:
+                    var ecgLead = EcgLead.II;
+                    var ecgLeadByte = GetRespirationLeadIndicator(ecgLead);
+                    return new byte[]{ categoryByte, sensorCodeBytes[2], 0x86, ecgLeadByte, 0x00, 0x00 };
+                case SensorType.BloodPressure:
+                    return new byte[] { categoryByte, sensorCodeBytes[2], 0x00, 0x20, 0x00, 0x0f};
+                default:
+                    return new byte[] { categoryByte, sensorCodeBytes[2], 0x00, 0x00, 0x00, 0x00 };
             }
-            else
+        }
+
+        static byte[] GetSensorConfig2Bytes(SensorType sensorType, byte[] sensorCodeBytes)
+        {
+            byte categoryByte = 0x15;
+            switch (sensorType)
             {
-                combinedHeartrateBytes.AddRange(new byte[] { 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0x0c, 0x3a });
-                combinedHeartrateBytes.AddRange(Enumerable.Repeat((byte)0x80, 12));
+                case SensorType.Ecg:
+                    return new byte[] {categoryByte, sensorCodeBytes[2], 0x00, 0x00}
+                        .Concat(new byte[] {0x40, 0x21, 0x40, 0x00, 0x00, 0x00})
+                        .ToArray();
+                case SensorType.RespirationRate:
+                case SensorType.SpO2:
+                case SensorType.BloodPressure:
+                    return new byte[] {categoryByte, sensorCodeBytes[2], 0x40, 0x00}
+                        .Concat(new byte[] {0x40, 0x00, 0x40, 0x01, 0x3f, 0xea})
+                        .ToArray();
+                default:
+                    return new byte[10];
             }
+        }
 
-            // Alarm limit
-            var firstEcgSimulator = simulators.Values.OfType<EcgSimulator>().FirstOrDefault();
-            var lowerLimit = firstEcgSimulator?.HeartrateLowerLimit ?? 50;
-            var lowerLimitBytes = BitConverter.GetBytes(ParserHelpers.ToUShort(lowerLimit)).Reverse();
-            var upperLimit = firstEcgSimulator?.HeartRateUpperLimit?? 50;
-            var upperLimitBytes = BitConverter.GetBytes(ParserHelpers.ToUShort(upperLimit)).Reverse();
-            var alarmLimitBytes = lowerLimitBytes.Concat(upperLimitBytes);
+        static byte[] GetSensorConfig3Bytes(SensorType sensorType, byte[] sensorCodeBytes)
+        {
+            byte categoryByte = 0x02;
+            switch (sensorType)
+            {
+                case SensorType.Ecg:
+                    return new byte[] {categoryByte, sensorCodeBytes[2], 0x20, 0x85}
+                        .Concat(new byte[] {0x00, 0x00, 0x00, 0x09, 0x00, 0x00})
+                        .ToArray();
+                case SensorType.BloodPressure:
+                    return new byte[]{ categoryByte, sensorCodeBytes[2], 0x00, 0x01 }
+                        .Concat(new byte[6])
+                        .ToArray();
+                default:
+                    return new byte[10];
+            }
+        }
 
-            var ecgHeartrateSection = sensorCodeBytes
-                .Concat(new []{validityByte})
-                .Concat(combinedHeartrateBytes)
-                .Concat(new byte[] {0x03, sensorCodeBytes[2], 0x00, 0x00})
-                .Concat(new byte[] {0x00, 0x01})
-                .Concat(alarmLimitBytes)
-                .Concat(new byte[] {0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
-                .Concat(new byte[] {0x15, sensorCodeBytes[2], 0x00, 0x00})
-                .Concat(new byte[] {0x40, 0x21, 0x40, 0x00, 0x00, 0x00})
-                .Concat(new byte[] {0x02, 0x3a, 0x20, 0x85})
-                .Concat(new byte[] {0x00, 0x00, 0x00, 0x09, 0x00, 0x00})
-                .Concat(new byte[] {0x01, sensorCodeBytes[2], 0x01, 0x00})
-                .ToArray();
-            return ecgHeartrateSection;
+        static byte GetEcgLeadByte(EcgLead lead)
+        {
+            switch (lead)
+            {
+                case EcgLead.I:
+                    return 0x00;
+                case EcgLead.II:
+                    return 0x01;
+                case EcgLead.III:
+                    return 0x02;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(lead), lead, null);
+            }
+        }
+
+        byte GetSensorPriorityByte(SensorType sensorType)
+        {
+            switch (sensorType)
+            {
+                case SensorType.Ecg:
+                    return 0x01;
+                case SensorType.EcgLeadI:
+                case SensorType.EcgLeadII:
+                case SensorType.EcgLeadIII:
+                case SensorType.EcgLeadPrecordial:
+                    return 0x0d;
+                case SensorType.RespirationRate:
+                    return 0x08;
+                case SensorType.SpO2:
+                    return 0x0b;
+                case SensorType.BloodPressure:
+                    return 0x0a;
+                default:
+                    return 0x0e;
+            }
         }
 
         static byte GetRespirationLeadIndicator(EcgLead lead)
@@ -183,6 +277,8 @@ namespace NetworkCommunication
 
         ISimulator GetDataSource(SensorType sensorType)
         {
+            if (sensorType == SensorType.Ecg)
+                return simulators.Values.OfType<EcgSimulator>().First();
             return simulators[sensorType];
         }
     }

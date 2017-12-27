@@ -84,6 +84,13 @@ namespace NetworkCommunication
         {
             switch (sensorType)
             {
+                case SensorType.Ecg:
+                    return new List<VitalSignType>
+                    {
+                        VitalSignType.HeartRate,
+                        VitalSignType.VentricularExtraSystoles,
+                        VitalSignType.UnknownEcgParameter
+                    };
                 case SensorType.EcgLeadI:
                 case SensorType.EcgLeadII:
                 case SensorType.EcgLeadIII:
@@ -100,8 +107,6 @@ namespace NetworkCommunication
                     };
                 case SensorType.SpO2:
                     return new[] {VitalSignType.SpO2, VitalSignType.HeartRate};
-                case SensorType.Ecg:
-                    return Enumerable.Repeat(VitalSignType.HeartRate, 10).ToList();
                 default:
                     return new List<VitalSignType>();
             }

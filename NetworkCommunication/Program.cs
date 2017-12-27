@@ -27,12 +27,14 @@ namespace NetworkCommunication
                 { SensorType.EcgLeadIII, new EcgSimulator(SensorType.EcgLeadIII, simulationSettings) },
                 { SensorType.EcgLeadPrecordial, new EcgSimulator(SensorType.EcgLeadPrecordial, simulationSettings) },
                 { SensorType.RespirationRate, new RespirationSimulator(simulationSettings) },
-                { SensorType.SpO2, new SpO2Simulator(simulationSettings) }
+                { SensorType.SpO2, new SpO2Simulator(simulationSettings) },
+                { SensorType.BloodPressure, new NibpSimualtor(simulationSettings)}
             };
             var simulatedSensors = new[]
             {
                 SensorType.RespirationRate,
                 SensorType.SpO2,
+                //SensorType.BloodPressure,
                 SensorType.EcgLeadI,
                 SensorType.EcgLeadII,
                 SensorType.EcgLeadIII,

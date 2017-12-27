@@ -30,23 +30,7 @@ namespace NetworkCommunication
                 var sensorCodeBytes = sectionBytes.Skip(SensorIdentifierOffset).Take(SensorIdentifieryLength);
                 var sensorCode = BitConverter.ToUInt32(sensorCodeBytes.Reverse().ToArray(), 0);
                 var sensorType = Informations.MapVitalSignSenorCodeToSensorType(sensorCode);
-                switch (sensorType)
-                {
-                    case SensorType.Ecg:
-                        vitalSignValues.AddRange(ParseEcgSection(sectionBytes));
-                        break;
-                    case SensorType.EcgLeadI:
-                    case SensorType.EcgLeadII:
-                    case SensorType.EcgLeadIII:
-                    case SensorType.EcgLeadPrecordial:
-                    case SensorType.RespirationRate:
-                    case SensorType.SpO2:
-                    case SensorType.BloodPressure:
-                        vitalSignValues.AddRange(ParseGeneric(sectionBytes, sensorType));
-                        break;
-                    default:
-                        throw new NotSupportedException();
-                }
+                vitalSignValues.AddRange(ParseSensorSection(sectionBytes, sensorType));
             }
             return new VitalSignData(timestamp)
             {
@@ -66,37 +50,7 @@ namespace NetworkCommunication
             }
         }
 
-        static IEnumerable<VitalSignValue> ParseEcgSection(byte[] sectionBytes)
-        {
-            const int ValueCount = 10;
-
-            var lowerLimitBytes = sectionBytes.Skip(FirstAlarmLimitOffset).Take(2);
-            var lowerLimitUshort = BitConverter.ToUInt16(lowerLimitBytes.Reverse().ToArray(), 0);
-            var lowerLimit = ParserHelpers.ToShortValue(lowerLimitUshort);
-            var upperLimitBytes = sectionBytes.Skip(FirstAlarmLimitOffset+2).Take(2);
-            var upperLimitUshort = BitConverter.ToUInt16(upperLimitBytes.Reverse().ToArray(), 0);
-            var upperLimit = ParserHelpers.ToShortValue(upperLimitUshort);
-
-            for (int valueIdx = 0; valueIdx < ValueCount; valueIdx++)
-            {
-                var offset = FirstValueOffset + ValueLength * valueIdx;
-                var valueBytes = sectionBytes.Skip(offset).Take(ValueLength);
-                if(valueBytes.First() == 0x80)
-                    continue;
-                var valueUShort = BitConverter.ToUInt16(valueBytes.Reverse().ToArray(), 0);
-                var value = ParserHelpers.ToShortValue(valueUShort);
-                if(value < 5 || value > 300)
-                    continue;
-                yield return new VitalSignValue(
-                    SensorType.Ecg, 
-                    VitalSignType.HeartRate, 
-                    value,
-                    lowerLimit,
-                    upperLimit);
-            }
-        }
-
-        static IEnumerable<VitalSignValue> ParseGeneric(byte[] sectionBytes, SensorType sensorType)
+        static IEnumerable<VitalSignValue> ParseSensorSection(byte[] sectionBytes, SensorType sensorType)
         {
             var vitalSigns = Informations.VitalSignTypesForSensor(sensorType);
             var valueCount = vitalSigns.Count;

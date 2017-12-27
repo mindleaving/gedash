@@ -24,7 +24,7 @@ namespace NetworkCommunicationTest
         {
             var sut = CreateDefault();
             var message = sut.Build();
-            Assert.That(message.Length, Is.EqualTo(545));
+            Assert.That(message.Length, Is.EqualTo(546));
         }
 
         static Dictionary<SensorType, ISimulator> CreateSimulators()

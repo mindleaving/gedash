@@ -36,17 +36,27 @@ namespace NetworkCommunication.Simulators
             Lead = MapSensorTypeToLead(sensorType);
         }
 
-        public byte QualityByte { get; } = 0x00;
+        public byte QualityByte { get; } = 0x08; // 0x08 = Valid, 0x1f = lead failure
         public SensorType SensorType { get; }
         public EcgLead Lead { get; }
-        public short VentricularExtraSystoles { get; } = 3;
         public short Heartrate { get; set; } = 61;
         public short HeartrateLowerLimit { get; set; } = 50;
         public short HeartRateUpperLimit { get; set; } = 100;
+        public short VentricularExtraSystoles { get; set; } = 3;
+        public short VentricularExtraSystolesLowerLimit { get; set; } = 0;
+        public short VentricularExtraSystolesUpperLimit { get; set; } = 6;
 
         public IList<VitalSignValue> GetVitalSignValues()
         {
-            return new List<VitalSignValue>();
+            return new List<VitalSignValue>
+            {
+                new VitalSignValue(SensorType, VitalSignType.HeartRate,
+                    Heartrate, HeartrateLowerLimit, HeartRateUpperLimit),
+                new VitalSignValue(SensorType, VitalSignType.VentricularExtraSystoles,
+                    VentricularExtraSystoles, VentricularExtraSystolesLowerLimit, VentricularExtraSystolesUpperLimit),
+                new VitalSignValue(SensorType, VitalSignType.UnknownEcgParameter,
+                    0, 0, 0)
+            };
         }
 
         public short GetNextValue()

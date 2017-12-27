@@ -30,11 +30,23 @@ namespace NetworkCommunication.Simulators
         }
 
         public byte QualityByte { get; } = 0x00;
+        public short RespirationRate { get; set; } = 11;
+        public short RespirationRateLowerLimit { get; set; } = 5;
+        public short RespirationRateUpperLimit { get; set; } = 30;
         public SensorType SensorType { get; } = SensorType.RespirationRate;
 
         public IList<VitalSignValue> GetVitalSignValues()
         {
-            return new List<VitalSignValue>();
+            var respirationRate = RespirationRate + StaticRng.RNG.Next(-1, 2);
+            if (respirationRate > 25)
+                respirationRate = 25;
+            else if (respirationRate < 8)
+                respirationRate = 8;
+            RespirationRate = (short) respirationRate;
+            return new List<VitalSignValue>
+            {
+                new VitalSignValue(SensorType, VitalSignType.RespirationRate, RespirationRate, RespirationRateLowerLimit, RespirationRateUpperLimit)
+            };
         }
 
         public short GetNextValue()
