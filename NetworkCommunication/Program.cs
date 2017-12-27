@@ -34,7 +34,7 @@ namespace NetworkCommunication
             {
                 SensorType.RespirationRate,
                 SensorType.SpO2,
-                //SensorType.BloodPressure,
+                SensorType.BloodPressure,
                 SensorType.EcgLeadI,
                 SensorType.EcgLeadII,
                 SensorType.EcgLeadIII,

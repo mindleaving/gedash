@@ -58,22 +58,6 @@ namespace NetworkCommunication
             var sequenceNumberBytes = BitConverter.GetBytes(sequenceNumber).Reverse().ToArray();
             var counterLastByte = sequenceNumberBytes.Last();
 
-            var ipAddressBytes = ourIpAddress.GetAddressBytes();
-            var ipAddressSection1 = ipAddressBytes
-                .Concat(new byte[2])
-                .Concat(ipAddressBytes)
-                .Concat(new byte[2])
-                .Concat(new byte[] { 0x00, 0xc9, 0x00, 0x14, 0x00, 0x01 })
-                .Concat(new byte[40])
-                .Concat(new byte[] { 0x01, 0xe6 });
-            var ipAddressSection2 = ipAddressBytes
-                .Concat(new byte[2])
-                .Concat(ipAddressBytes)
-                .Concat(new byte[2])
-                .Concat(new byte[] { 0x00, 0xc9, 0x00, 0x14 })
-                .Concat(sequenceNumberBytes)
-                .Concat(new byte[38])
-                .Concat(new byte[] { 0x01, 0xaa });
             var ipSectionSuffix = new byte[] {0x00, 0x06, 0x06, 0x01, (byte)sensorTypes.Count };
             var combinedSensorBytes = new List<byte>();
             foreach (var sensorType in sensorTypes)
@@ -129,6 +113,29 @@ namespace NetworkCommunication
                     .ToArray();
                 combinedSensorBytes.AddRange(sensorBytes);
             }
+
+            var ipAddressBytes = ourIpAddress.GetAddressBytes();
+            var ipSection2MessageLength = (ushort) (combinedSensorBytes.Count - 64);
+            var ipSection2MessageLengthBytes = BitConverter.GetBytes(ipSection2MessageLength).Reverse();
+            var ipAddressSection2 = ipAddressBytes
+                .Concat(new byte[2])
+                .Concat(ipAddressBytes)
+                .Concat(new byte[2])
+                .Concat(new byte[] { 0x00, 0xc9, 0x00, 0x14 })
+                .Concat(sequenceNumberBytes)
+                .Concat(new byte[38])
+                .Concat(ipSection2MessageLengthBytes)
+                .ToList();
+            var ipSection1MessageLength = (ushort)(combinedSensorBytes.Count - 64 + ipAddressSection2.Count);
+            var ipSection1MessageLengthBytes = BitConverter.GetBytes(ipSection1MessageLength).Reverse();
+            var ipAddressSection1 = ipAddressBytes
+                .Concat(new byte[2])
+                .Concat(ipAddressBytes)
+                .Concat(new byte[2])
+                .Concat(new byte[] { 0x00, 0xc9, 0x00, 0x14, 0x00, 0x01 })
+                .Concat(new byte[40])
+                .Concat(ipSection1MessageLengthBytes)
+                .ToList();
 
             var message = ipAddressSection1
                 .Concat(ipAddressSection2)

@@ -11,7 +11,7 @@ namespace NetworkCommunication.Simulators
             this.settings = settings;
         }
 
-        public byte QualityByte { get; } = 0xff;
+        public byte QualityByte { get; } = 0x00;
         public short DiastolicPressure { get; set; } = 80;
         public short DiastolicPressureLowerLimit { get; set; } = 50;
         public short DiastolicPressureUpperLimit { get; set; } = 100;
