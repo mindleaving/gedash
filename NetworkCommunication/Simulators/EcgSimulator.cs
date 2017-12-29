@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NetworkCommunication.Objects;
 
 namespace NetworkCommunication.Simulators
 {

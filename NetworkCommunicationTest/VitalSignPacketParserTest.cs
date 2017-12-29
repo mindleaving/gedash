@@ -1,5 +1,7 @@
 ﻿using System;
 using NetworkCommunication;
+using NetworkCommunication.DataProcessing;
+using NetworkCommunication.Objects;
 using NUnit.Framework;
 
 namespace NetworkCommunicationTest

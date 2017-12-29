@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using NetworkCommunication.Objects;
 
 namespace NetworkCommunication
 {
     public static class Informations
     {
+        public const int SensorBatchesPerSecond = 60;
+
         public static readonly Dictionary<SensorType, int> SensorBatchSizes = new Dictionary<SensorType, int>
         {
             { SensorType.EcgLeadI, 4},

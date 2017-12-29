@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkCommunication", "Net
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkCommunicationTest", "NetworkCommunicationTest\NetworkCommunicationTest.csproj", "{EDE04045-A333-42BA-9888-0533E9C6D083}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentralMonitorGUI", "CentralMonitorGUI\CentralMonitorGUI.csproj", "{C165D3A0-735F-4E2F-BBB5-464A37213FBF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{EDE04045-A333-42BA-9888-0533E9C6D083}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDE04045-A333-42BA-9888-0533E9C6D083}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDE04045-A333-42BA-9888-0533E9C6D083}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C165D3A0-735F-4E2F-BBB5-464A37213FBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C165D3A0-735F-4E2F-BBB5-464A37213FBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C165D3A0-735F-4E2F-BBB5-464A37213FBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C165D3A0-735F-4E2F-BBB5-464A37213FBF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

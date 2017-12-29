@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
+using NetworkCommunication.Communicators;
+using NetworkCommunication.DataProcessing;
+using NetworkCommunication.DataStorage;
+using NetworkCommunication.Objects;
 using NetworkCommunication.Simulators;
 
 namespace NetworkCommunication
@@ -58,7 +62,9 @@ namespace NetworkCommunication
             using (var vitalSignsStorer = new VitalSignsStorer(directory, appendToFile))
             {
                 var dataRequestReceiver = new DataRequestReceiver(waveformStreamer, vitalSignStreamer);
-                var waveformReceiver = new WaveformReceiver(dataRequestSender, waveformStorer, vitalSignsStorer);
+                var waveformReceiver = new WaveformReceiver(dataRequestSender);
+                waveformReceiver.NewWaveformData += (sender, data) => waveformStorer.Store(data);
+                waveformReceiver.NewVitalSignData += (sender, data) => vitalSignsStorer.Store(data);
                 waveformStorer.Initialize();
                 vitalSignsStorer.Initialize();
 

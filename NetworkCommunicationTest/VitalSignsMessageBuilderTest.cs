@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 using NetworkCommunication;
+using NetworkCommunication.DataProcessing;
+using NetworkCommunication.Objects;
 using NetworkCommunication.Simulators;
 using NUnit.Framework;
 

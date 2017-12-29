@@ -42,49 +42,53 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AlarmReceiver.cs" />
-    <Compile Include="DataRequestGenerator.cs" />
-    <Compile Include="DataRequestReceiver.cs" />
-    <Compile Include="DataRequestSender.cs" />
-    <Compile Include="DataRequestType.cs" />
-    <Compile Include="DiscoveryMessageGenerator.cs" />
-    <Compile Include="DiscoveryMessageReceiver.cs" />
-    <Compile Include="DiscoveryMessageSender.cs" />
-    <Compile Include="EcgLead.cs" />
+    <Compile Include="Communicators\AlarmReceiver.cs" />
+    <Compile Include="DataProcessing\DataRequestGenerator.cs" />
+    <Compile Include="Communicators\DataRequestReceiver.cs" />
+    <Compile Include="Communicators\DataRequestSender.cs" />
+    <Compile Include="DataStorage\WaveformBuffer.cs" />
+    <Compile Include="Objects\DataRequestType.cs" />
+    <Compile Include="DataProcessing\DiscoveryMessageGenerator.cs" />
+    <Compile Include="Communicators\DiscoveryMessageReceiver.cs" />
+    <Compile Include="Communicators\DiscoveryMessageSender.cs" />
+    <Compile Include="Objects\EcgLead.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Informations.cs" />
+    <Compile Include="DataStorage\IVitalSignSource.cs" />
+    <Compile Include="DataStorage\IWaveformSource.cs" />
     <Compile Include="Simulators\NibpSimualtor.cs" />
     <Compile Include="StaticRng.cs" />
     <Compile Include="StoppableTask.cs" />
-    <Compile Include="VitalSignRequestData.cs" />
-    <Compile Include="VitalSignsStorer.cs" />
-    <Compile Include="ParserHelpers.cs" />
+    <Compile Include="DataStorage\VitalSignsStorer.cs" />
+    <Compile Include="Objects\VitalSignRequestData.cs" />
+    <Compile Include="DataProcessing\ParserHelpers.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SensorType.cs" />
+    <Compile Include="Objects\SensorType.cs" />
     <Compile Include="Simulators\ConstantSimulator.cs" />
     <Compile Include="Simulators\EcgSimulator.cs" />
     <Compile Include="Simulators\ISimulator.cs" />
     <Compile Include="Simulators\RespirationSimulator.cs" />
     <Compile Include="Simulators\SimulationSettings.cs" />
     <Compile Include="Simulators\SpO2Simulator.cs" />
-    <Compile Include="VitalSignDataStreamer.cs" />
-    <Compile Include="VitalSignMessageBuilder.cs" />
-    <Compile Include="VitalSignPacketParser.cs" />
-    <Compile Include="VitalSignType.cs" />
-    <Compile Include="VitalSignValue.cs" />
-    <Compile Include="Waveform.cs" />
-    <Compile Include="WaveformData.cs" />
-    <Compile Include="VitalSignData.cs" />
-    <Compile Include="WaveformMessageBuilder.cs" />
-    <Compile Include="WaveformPacketParser.cs" />
-    <Compile Include="WaveformReceiver.cs" />
-    <Compile Include="WaveformRequestData.cs" />
-    <Compile Include="WaveformStorer.cs" />
-    <Compile Include="WaveformStreamer.cs" />
+    <Compile Include="Communicators\VitalSignDataStreamer.cs" />
+    <Compile Include="DataProcessing\VitalSignMessageBuilder.cs" />
+    <Compile Include="DataProcessing\VitalSignPacketParser.cs" />
+    <Compile Include="Objects\VitalSignType.cs" />
+    <Compile Include="Objects\VitalSignValue.cs" />
+    <Compile Include="Objects\Waveform.cs" />
+    <Compile Include="Objects\WaveformData.cs" />
+    <Compile Include="Objects\VitalSignData.cs" />
+    <Compile Include="DataProcessing\WaveformMessageBuilder.cs" />
+    <Compile Include="DataProcessing\WaveformPacketParser.cs" />
+    <Compile Include="Communicators\WaveformReceiver.cs" />
+    <Compile Include="Objects\WaveformRequestData.cs" />
+    <Compile Include="DataStorage\WaveformStorer.cs" />
+    <Compile Include="Communicators\WaveformStreamer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
