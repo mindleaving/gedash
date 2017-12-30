@@ -6,12 +6,11 @@
              xmlns:views="clr-namespace:CentralMonitorGUI.Views"
              mc:Ignorable="d" 
              d:DesignHeight="80" d:DesignWidth="1000"
-             Name="Self"
-             DataContext="{Binding ElementName=Self, Path=ViewModel}">
+             Name="Self">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </UserControl.Resources>
-    <Grid>
+    <Grid DataContext="{Binding ElementName=Self, Path=ViewModel}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>

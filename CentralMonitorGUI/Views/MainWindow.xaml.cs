@@ -14,7 +14,6 @@ namespace CentralMonitorGUI.Views
         public MainWindow(MainViewModel viewModel)
         {
             InitializeComponent();
-
             ViewModel = viewModel;
         }
 

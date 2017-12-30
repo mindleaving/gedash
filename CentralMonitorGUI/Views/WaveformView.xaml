@@ -7,9 +7,8 @@
              xmlns:wpf="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              mc:Ignorable="d" 
              d:DesignHeight="80" d:DesignWidth="300"
-             Name="Self"
-             DataContext="{Binding ElementName=Self, Path=ViewModel}">
-    <Grid Background="Aquamarine">
+             Name="Self">
+    <Grid Background="Aquamarine" DataContext="{Binding ElementName=Self, Path=ViewModel}">
            <wpf:CartesianChart Series="{Binding WaveformSeries}">
                <wpf:CartesianChart.AxisX>
                    <wpf:Axis ShowLabels="False"/>

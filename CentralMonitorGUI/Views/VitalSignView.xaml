@@ -5,9 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" 
              d:DesignHeight="80" d:DesignWidth="140"
-             Name="Self"
-             DataContext="{Binding ElementName=Self, Path=ViewModel}">
-    <Border BorderThickness="2" BorderBrush="Black">
+             Name="Self">
+    <Border BorderThickness="2" BorderBrush="Black" DataContext="{Binding ElementName=Self, Path=ViewModel}">
         <Grid>
             <TextBlock Text="HR" FontSize="14" FontWeight="Bold"
                        HorizontalAlignment="Right" Margin="0 20 90 0"/>

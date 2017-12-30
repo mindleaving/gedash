@@ -4,14 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:CentralMonitorGUI.Views"
+        xmlns:wpf="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
         x:Name="Self"
-        DataContext="{Binding ElementName=Self, Path=ViewModel}"
         Title="Central Monitor" Height="400" Width="1000">
-    <Grid>
+    <Grid DataContext="{Binding ElementName=Self, Path=ViewModel}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="200"/>
         </Grid.RowDefinitions>
 
         <Menu Grid.Row="0">
@@ -27,5 +28,15 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <views:ChartCanvasView Grid.Column="0" ViewModel="{Binding ChartViewModel1}"/>
+            <views:ChartCanvasView Grid.Column="1" ViewModel="{Binding ChartViewModel2}"/>
+        </Grid>
+
     </Grid>
 </Window>
