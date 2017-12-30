@@ -6,14 +6,21 @@ namespace NetworkCommunication.Objects
 {
     public class VitalSignData
     {
-        public VitalSignData(DateTime timestamp)
+        public VitalSignData(
+            IPAddress ipAddress, 
+            int messageCounter, 
+            List<VitalSignValue> vitalSignValues, 
+            DateTime timestamp)
         {
             Timestamp = timestamp;
+            IPAddress = ipAddress;
+            MessageCounter = messageCounter;
+            VitalSignValues = vitalSignValues;
         }
 
+        public IPAddress IPAddress { get; }
+        public int MessageCounter { get; }
+        public List<VitalSignValue> VitalSignValues { get; }
         public DateTime Timestamp { get; }
-        public IPAddress IPAddress { get; set; }
-        public int MessageCounter { get; set; }
-        public List<VitalSignValue> VitalSignValues { get; set; }
     }
 }

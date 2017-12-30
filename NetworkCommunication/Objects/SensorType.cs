@@ -7,11 +7,11 @@
         EcgLeadII,
         EcgLeadIII,
         EcgLeadPrecordial,
-        RespirationRate,
+        Respiration,
         SpO2,
         BloodPressure,
 
-        Other,
+        Undefined,
         Raw
     }
 }

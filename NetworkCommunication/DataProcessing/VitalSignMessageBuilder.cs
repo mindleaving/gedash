@@ -43,7 +43,7 @@ namespace NetworkCommunication.DataProcessing
                     return 103;
                 case SensorType.EcgLeadPrecordial:
                     return 104;
-                case SensorType.RespirationRate:
+                case SensorType.Respiration:
                     return 1;
                 case SensorType.SpO2:
                     return 2;
@@ -177,7 +177,7 @@ namespace NetworkCommunication.DataProcessing
                     return new byte[] {categoryByte, sensorCodeBytes[2], 0x10, 0x80, 0x00, selectedLeadCode};
                 case SensorType.SpO2:
                     return new byte[] {categoryByte, sensorCodeBytes[2], 0xa0, 0x20, 0x00, 0x09};
-                case SensorType.RespirationRate:
+                case SensorType.Respiration:
                     var ecgLead = EcgLead.II;
                     var ecgLeadByte = GetRespirationLeadIndicator(ecgLead);
                     return new byte[]{ categoryByte, sensorCodeBytes[2], 0x86, ecgLeadByte, 0x00, 0x00 };
@@ -197,7 +197,7 @@ namespace NetworkCommunication.DataProcessing
                     return new byte[] {categoryByte, sensorCodeBytes[2], 0x00, 0x00}
                         .Concat(new byte[] {0x40, 0x21, 0x40, 0x00, 0x00, 0x00})
                         .ToArray();
-                case SensorType.RespirationRate:
+                case SensorType.Respiration:
                 case SensorType.SpO2:
                 case SensorType.BloodPressure:
                     return new byte[] {categoryByte, sensorCodeBytes[2], 0x40, 0x00}
@@ -252,7 +252,7 @@ namespace NetworkCommunication.DataProcessing
                 case SensorType.EcgLeadIII:
                 case SensorType.EcgLeadPrecordial:
                     return 0x0d;
-                case SensorType.RespirationRate:
+                case SensorType.Respiration:
                     return 0x08;
                 case SensorType.SpO2:
                     return 0x0b;

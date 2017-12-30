@@ -34,7 +34,7 @@ namespace NetworkCommunication.Simulators
                 throw new ArgumentException("Sensor type must be of an ECG type");
             this.settings = settings;
             SensorType = sensorType;
-            Lead = MapSensorTypeToLead(sensorType);
+            Lead = Informations.MapSensorTypeToLead(sensorType);
         }
 
         public byte QualityByte { get; } = 0x08; // 0x08 = Valid, 0x1f = lead failure
@@ -66,23 +66,6 @@ namespace NetworkCommunication.Simulators
             if (valueIdx >= ecgValues.Count)
                 valueIdx = 0;
             return (short)(ecgValues[valueIdx]+270);
-        }
-
-        EcgLead MapSensorTypeToLead(SensorType sensorType)
-        {
-            switch (sensorType)
-            {
-                case SensorType.EcgLeadI:
-                    return EcgLead.I;
-                case SensorType.EcgLeadII:
-                    return EcgLead.II;
-                case SensorType.EcgLeadIII:
-                    return EcgLead.III;
-                case SensorType.EcgLeadPrecordial:
-                    return EcgLead.V1;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(sensorType), sensorType, null);
-            }
         }
     }
 }

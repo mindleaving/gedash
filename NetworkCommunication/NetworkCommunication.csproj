@@ -43,19 +43,26 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Communicators\AlarmReceiver.cs" />
+    <Compile Include="Communicators\DataConnectionManager.cs" />
     <Compile Include="DataProcessing\DataRequestGenerator.cs" />
     <Compile Include="Communicators\DataRequestReceiver.cs" />
     <Compile Include="Communicators\DataRequestSender.cs" />
+    <Compile Include="DataProcessing\DiscoveryMessageParser.cs" />
     <Compile Include="DataStorage\WaveformBuffer.cs" />
+    <Compile Include="Objects\Alarm.cs" />
     <Compile Include="Objects\DataRequestType.cs" />
     <Compile Include="DataProcessing\DiscoveryMessageGenerator.cs" />
     <Compile Include="Communicators\DiscoveryMessageReceiver.cs" />
     <Compile Include="Communicators\DiscoveryMessageSender.cs" />
+    <Compile Include="Objects\DiscoveryMessage.cs" />
     <Compile Include="Objects\EcgLead.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Informations.cs" />
     <Compile Include="DataStorage\IVitalSignSource.cs" />
     <Compile Include="DataStorage\IWaveformSource.cs" />
+    <Compile Include="Objects\MonitorNetwork.cs" />
+    <Compile Include="Objects\PatientInfo.cs" />
+    <Compile Include="Objects\PatientMonitor.cs" />
     <Compile Include="Simulators\NibpSimualtor.cs" />
     <Compile Include="StaticRng.cs" />
     <Compile Include="StoppableTask.cs" />
@@ -81,7 +88,7 @@
     <Compile Include="Objects\VitalSignData.cs" />
     <Compile Include="DataProcessing\WaveformMessageBuilder.cs" />
     <Compile Include="DataProcessing\WaveformPacketParser.cs" />
-    <Compile Include="Communicators\WaveformReceiver.cs" />
+    <Compile Include="Communicators\WaveformAndVitalSignReceiver.cs" />
     <Compile Include="Objects\WaveformRequestData.cs" />
     <Compile Include="DataStorage\WaveformStorer.cs" />
     <Compile Include="Communicators\WaveformStreamer.cs" />
@@ -89,6 +96,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Commons\Commons.csproj">
+      <Project>{D0E6B038-C939-487D-BB5E-A6270A0D18F5}</Project>
+      <Name>Commons</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

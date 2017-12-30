@@ -1,0 +1,37 @@
+﻿<UserControl x:Class="CentralMonitorGUI.Views.PatientMonitorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:views="clr-namespace:CentralMonitorGUI.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="80" d:DesignWidth="1000"
+             Name="Self"
+             DataContext="{Binding ElementName=Self, Path=ViewModel}">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Sensor selection -->
+        <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" Margin="5 0">
+            <ToggleButton Content="ECG" IsChecked="{Binding EcgEnabled}" Margin="0 2"/>
+            <ToggleButton Content="RR"  IsChecked="{Binding RespirationEnabled}" Margin="0 2"/>
+            <ToggleButton Content="SpO2" IsChecked="{Binding SpO2Enabled}" Margin="0 2"/>
+        </StackPanel>
+
+        <!-- Waveforms -->
+        <views:WaveformView Grid.Column="1" ViewModel="{Binding EcgWaveform}" Visibility="{Binding EcgEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        <views:WaveformView Grid.Column="2" ViewModel="{Binding RespirationWaveform}" Visibility="{Binding EcgEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        <views:WaveformView Grid.Column="3" ViewModel="{Binding SpO2Waveform}" Visibility="{Binding EcgEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+        <views:VitalSignView Grid.Column="4" ViewModel="{Binding VitalSignValues}"/>
+    </Grid>
+</UserControl>

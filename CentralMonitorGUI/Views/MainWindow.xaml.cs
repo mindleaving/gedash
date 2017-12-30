@@ -11,9 +11,11 @@ namespace CentralMonitorGUI.Views
         public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register("ViewModel", 
             typeof(MainViewModel), typeof(MainWindow), new PropertyMetadata(default(MainViewModel)));
 
-        public MainWindow()
+        public MainWindow(MainViewModel viewModel)
         {
             InitializeComponent();
+
+            ViewModel = viewModel;
         }
 
         public MainViewModel ViewModel

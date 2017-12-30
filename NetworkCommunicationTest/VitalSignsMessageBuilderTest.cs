@@ -38,7 +38,7 @@ namespace NetworkCommunicationTest
                 { SensorType.EcgLeadII, new EcgSimulator(SensorType.EcgLeadII, simulationSettings) },
                 { SensorType.EcgLeadIII, new EcgSimulator(SensorType.EcgLeadIII, simulationSettings) },
                 { SensorType.EcgLeadPrecordial, new EcgSimulator(SensorType.EcgLeadPrecordial, simulationSettings) },
-                { SensorType.RespirationRate, new RespirationSimulator(simulationSettings) },
+                { SensorType.Respiration, new RespirationSimulator(simulationSettings) },
                 { SensorType.SpO2, new SpO2Simulator(simulationSettings) }
             };
         }

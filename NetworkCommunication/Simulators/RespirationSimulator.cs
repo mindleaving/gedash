@@ -34,7 +34,7 @@ namespace NetworkCommunication.Simulators
         public short RespirationRate { get; set; } = 11;
         public short RespirationRateLowerLimit { get; set; } = 5;
         public short RespirationRateUpperLimit { get; set; } = 30;
-        public SensorType SensorType { get; } = SensorType.RespirationRate;
+        public SensorType SensorType { get; } = SensorType.Respiration;
 
         public IList<VitalSignValue> GetVitalSignValues()
         {

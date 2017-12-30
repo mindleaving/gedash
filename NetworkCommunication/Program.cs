@@ -30,13 +30,13 @@ namespace NetworkCommunication
                 { SensorType.EcgLeadII, new EcgSimulator(SensorType.EcgLeadII, simulationSettings) },
                 { SensorType.EcgLeadIII, new EcgSimulator(SensorType.EcgLeadIII, simulationSettings) },
                 { SensorType.EcgLeadPrecordial, new EcgSimulator(SensorType.EcgLeadPrecordial, simulationSettings) },
-                { SensorType.RespirationRate, new RespirationSimulator(simulationSettings) },
+                { SensorType.Respiration, new RespirationSimulator(simulationSettings) },
                 { SensorType.SpO2, new SpO2Simulator(simulationSettings) },
                 { SensorType.BloodPressure, new NibpSimualtor(simulationSettings)}
             };
             var simulatedSensors = new[]
             {
-                SensorType.RespirationRate,
+                SensorType.Respiration,
                 SensorType.SpO2,
                 SensorType.BloodPressure,
                 SensorType.EcgLeadI,
@@ -49,12 +49,15 @@ namespace NetworkCommunication
 
             var cancellationTokenSource = new CancellationTokenSource();
             var discoveryMessageSender = new DiscoveryMessageSender();
-            var discoveryMessageReceiver = new DiscoveryMessageReceiver();
+            var discoveryMessageParser = new DiscoveryMessageParser();
+            var discoveryMessageReceiver = new DiscoveryMessageReceiver(discoveryMessageParser);
             var alarmReceiver = new AlarmReceiver();
             var dataRequestGenerator = new DataRequestGenerator();
             var dataRequestSender = new DataRequestSender(dataRequestGenerator);
             var waveformMessageBuilder = new WaveformMessageBuilder(simulatedSensors, simulators);
             var vitalSignMessageBuilder = new VitalSignMessageBuilder(simulatedSensors, simulators, ourIpAddress);
+            var waveformMessageParser = new WaveformPacketParser();
+            var vitalSignMessageParser = new VitalSignPacketParser();
 
             using(var vitalSignStreamer = new VitalSignDataStreamer(vitalSignMessageBuilder))
             using(var waveformStreamer = new WaveformStreamer(waveformMessageBuilder))
@@ -62,7 +65,7 @@ namespace NetworkCommunication
             using (var vitalSignsStorer = new VitalSignsStorer(directory, appendToFile))
             {
                 var dataRequestReceiver = new DataRequestReceiver(waveformStreamer, vitalSignStreamer);
-                var waveformReceiver = new WaveformReceiver(dataRequestSender);
+                var waveformReceiver = new WaveformAndVitalSignReceiver(dataRequestSender, vitalSignMessageParser, waveformMessageParser);
                 waveformReceiver.NewWaveformData += (sender, data) => waveformStorer.Store(data);
                 waveformReceiver.NewVitalSignData += (sender, data) => vitalSignsStorer.Store(data);
                 waveformStorer.Initialize();

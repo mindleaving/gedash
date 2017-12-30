@@ -20,7 +20,7 @@ namespace NetworkCommunication.DataProcessing
                 throw new ArgumentException("Not simulators for all sensor types");
 
             this.sensorTypes = sensorTypes
-                .Where(IsWaveformSensorType)
+                .Where(Informations.IsWaveformSensorType)
                 .OrderBy(GetSensorTypeOrder)
                 .ToList();
             this.simulators = simulators;
@@ -60,19 +60,6 @@ namespace NetworkCommunication.DataProcessing
             return simulators[sensorType];
         }
 
-        static bool IsWaveformSensorType(SensorType sensorType)
-        {
-            var waveformSensors = new[]
-            {
-                SensorType.EcgLeadI,
-                SensorType.EcgLeadII,
-                SensorType.EcgLeadIII,
-                SensorType.EcgLeadPrecordial,
-                SensorType.RespirationRate,
-                SensorType.SpO2
-            };
-            return sensorType.InSet(waveformSensors);
-        }
         int GetSensorTypeOrder(SensorType sensorType)
         {
             switch (sensorType)
@@ -85,7 +72,7 @@ namespace NetworkCommunication.DataProcessing
                     return 3;
                 case SensorType.EcgLeadPrecordial:
                     return 4;
-                case SensorType.RespirationRate:
+                case SensorType.Respiration:
                     return 5;
                 case SensorType.SpO2:
                     return 6;

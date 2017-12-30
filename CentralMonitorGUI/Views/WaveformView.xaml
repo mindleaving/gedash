@@ -9,7 +9,7 @@
              d:DesignHeight="80" d:DesignWidth="300"
              Name="Self"
              DataContext="{Binding ElementName=Self, Path=ViewModel}">
-    <Grid>
+    <Grid Background="Aquamarine">
            <wpf:CartesianChart Series="{Binding WaveformSeries}">
                <wpf:CartesianChart.AxisX>
                    <wpf:Axis ShowLabels="False"/>

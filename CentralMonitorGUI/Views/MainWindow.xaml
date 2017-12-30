@@ -3,22 +3,29 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:wpf="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        xmlns:views="clr-namespace:CentralMonitorGUI.Views"
         mc:Ignorable="d"
         x:Name="Self"
         DataContext="{Binding ElementName=Self, Path=ViewModel}"
         Title="Central Monitor" Height="400" Width="1000">
     <Grid>
-        <ListView ItemsSource="{Binding Monitors}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
+        <Menu Grid.Row="0">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Exit"/>
+            </MenuItem>
+        </Menu>
+
+        <ListView Grid.Row="1" ItemsSource="{Binding Monitors}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <views:PatientMonitorView ViewModel="{Binding}"/>
+                </DataTemplate>
+            </ListView.ItemTemplate>
         </ListView>
-        <wpf:CartesianChart>
-            <wpf:CartesianChart.AxisX>
-                <wpf:Axis ShowLabels="False"/>
-            </wpf:CartesianChart.AxisX>
-            <wpf:CartesianChart.AxisY>
-                <wpf:Axis ShowLabels="False"/>
-            </wpf:CartesianChart.AxisY>
-        </wpf:CartesianChart>
     </Grid>
 </Window>

@@ -61,15 +61,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ViewModels\MonitorListItemViewModel.cs" />
-    <Compile Include="ViewModels\PatientInfo.cs" />
-    <Compile Include="ViewModels\PatientMonitor.cs" />
+    <Compile Include="ViewModels\PatientMonitorViewModel.cs" />
     <Compile Include="ViewModels\UpdateTrigger.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\VitalSignViewModel.cs" />
     <Compile Include="ViewModels\WaveformViewModel.cs" />
-    <Compile Include="Views\MonitorListItemView.xaml.cs">
-      <DependentUpon>MonitorListItemView.xaml</DependentUpon>
+    <Compile Include="Views\PatientMonitorView.xaml.cs">
+      <DependentUpon>PatientMonitorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VitalSignView.xaml.cs">
+      <DependentUpon>VitalSignView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\WaveformView.xaml.cs">
       <DependentUpon>WaveformView.xaml</DependentUpon>
@@ -86,7 +88,11 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Views\MonitorListItemView.xaml">
+    <Page Include="Views\PatientMonitorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VitalSignView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

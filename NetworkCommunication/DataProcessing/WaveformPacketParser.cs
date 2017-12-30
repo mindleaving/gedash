@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using NetworkCommunication.Objects;
 
 namespace NetworkCommunication.DataProcessing
 {
-    public static class WaveformPacketParser
+    public class WaveformPacketParser
     {
-        public static WaveformData Parse(byte[] buffer, DateTime timestamp)
+        public WaveformData Parse(byte[] data, 
+            IPAddress ipAddress,
+            DateTime timestamp)
         {
             var shortValues = new List<short>();
-            for (int idx = 0; idx+1 < buffer.Length; idx += 2)
+            for (int idx = 0; idx+1 < data.Length; idx += 2)
             {
-                var bytes = buffer.Skip(idx).Take(2).Reverse().ToArray();
+                var bytes = data.Skip(idx).Take(2).Reverse().ToArray();
                 var ushortValue = BitConverter.ToUInt16(bytes, 0);
                 var shortValue = ParserHelpers.ToShortValue(ushortValue);
                 shortValues.Add(shortValue);
@@ -24,15 +27,9 @@ namespace NetworkCommunication.DataProcessing
             var valueIdx = 2;
             while (valueIdx < shortValues.Count)
             {
-                SensorType sensorType;
-                try
-                {
-                    sensorType = Informations.MapWaveformCodeToSensorType(shortValues[valueIdx]);
-                }
-                catch (ArgumentOutOfRangeException)
-                {
+                var sensorType = Informations.MapWaveformCodeToSensorType(shortValues[valueIdx]);
+                if(sensorType == SensorType.Undefined)
                     break;
-                }
                 var valueCount = Informations.SensorBatchSizes[sensorType];
                 if(!waveforms.ContainsKey(sensorType))
                     waveforms.Add(sensorType, new List<short>());
@@ -40,8 +37,8 @@ namespace NetworkCommunication.DataProcessing
                 valueIdx += valueCount + 1;
             }
             if(shortValues[valueIdx] > 0)
-                waveforms.Add(SensorType.Other, shortValues.Skip(valueIdx).ToList());
-            return new WaveformData(timestamp, sequenceNumber, waveforms);
+                waveforms.Add(SensorType.Undefined, shortValues.Skip(valueIdx).ToList());
+            return new WaveformData(ipAddress, timestamp, sequenceNumber, waveforms);
         }
     }
 }

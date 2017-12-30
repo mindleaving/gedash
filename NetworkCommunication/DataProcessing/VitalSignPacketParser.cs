@@ -6,7 +6,7 @@ using NetworkCommunication.Objects;
 
 namespace NetworkCommunication.DataProcessing
 {
-    public static class VitalSignPacketParser
+    public class VitalSignPacketParser
     {
         const int SensorEntryLength = 70;
 
@@ -19,7 +19,7 @@ namespace NetworkCommunication.DataProcessing
         const int FirstAlarmLimitOffset = 32;
         const int AlarmLimitLength = 4;
 
-        public static VitalSignData Parse(byte[] buffer, DateTime timestamp)
+        public VitalSignData Parse(byte[] buffer, DateTime timestamp)
         {
             var ipAddress = new IPAddress(buffer.Skip(0).Take(4).ToArray());
             var counter = BitConverter.ToInt32(buffer.Skip(75).Take(4).Reverse().ToArray(), 0);
@@ -33,15 +33,10 @@ namespace NetworkCommunication.DataProcessing
                 var sensorType = Informations.MapVitalSignSenorCodeToSensorType(sensorCode);
                 vitalSignValues.AddRange(ParseSensorSection(sectionBytes, sensorType));
             }
-            return new VitalSignData(timestamp)
-            {
-                IPAddress = ipAddress,
-                MessageCounter = counter,
-                VitalSignValues = vitalSignValues
-            };
+            return new VitalSignData(ipAddress, counter, vitalSignValues, timestamp);
         }
 
-        static IEnumerable<int> GetEntryStartIndices(int bufferLength)
+        private static IEnumerable<int> GetEntryStartIndices(int bufferLength)
         {
             var idx = 124;
             while (idx+SensorEntryLength < bufferLength)
@@ -51,7 +46,7 @@ namespace NetworkCommunication.DataProcessing
             }
         }
 
-        static IEnumerable<VitalSignValue> ParseSensorSection(byte[] sectionBytes, SensorType sensorType)
+        private static IEnumerable<VitalSignValue> ParseSensorSection(byte[] sectionBytes, SensorType sensorType)
         {
             var vitalSigns = Informations.VitalSignTypesForSensor(sensorType);
             var valueCount = vitalSigns.Count;

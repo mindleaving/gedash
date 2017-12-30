@@ -14,9 +14,9 @@ namespace NetworkCommunication
             { SensorType.EcgLeadII, 4},
             { SensorType.EcgLeadIII, 4},
             { SensorType.EcgLeadPrecordial, 4},
-            { SensorType.RespirationRate, 1 },
+            { SensorType.Respiration, 1 },
             { SensorType.SpO2, 1},
-            { SensorType.Other, 1},
+            { SensorType.Undefined, 1},
             { SensorType.Raw, 1}
         };
 
@@ -26,7 +26,7 @@ namespace NetworkCommunication
             { SensorType.EcgLeadII, 2059},
             { SensorType.EcgLeadIII, 2315},
             { SensorType.EcgLeadPrecordial, 2571},
-            { SensorType.RespirationRate, 5897 },
+            { SensorType.Respiration, 5897 },
             { SensorType.SpO2, 9993}
         };
 
@@ -37,7 +37,7 @@ namespace NetworkCommunication
             { SensorType.EcgLeadII, 0x000157c0},
             { SensorType.EcgLeadIII, 0x000158c0},
             { SensorType.EcgLeadPrecordial, 0x000159c0},
-            { SensorType.RespirationRate, 0x000122c0 },
+            { SensorType.Respiration, 0x000122c0 },
             { SensorType.SpO2, 0x00012dc0},
             { SensorType.BloodPressure, 0x000118c0 }
         };
@@ -53,10 +53,10 @@ namespace NetworkCommunication
             if (code >= 2570 && code < 2850)
                 return SensorType.EcgLeadPrecordial;
             if (code == 5897)
-                return SensorType.RespirationRate;
+                return SensorType.Respiration;
             if (code == 9993)
                 return SensorType.SpO2;
-            throw new ArgumentOutOfRangeException();
+            return SensorType.Undefined;
         }
 
         public static SensorType MapVitalSignSenorCodeToSensorType(uint code)
@@ -66,7 +66,7 @@ namespace NetworkCommunication
             if (filteredCode == 0x00013ac0)
                 return SensorType.Ecg;
             if (filteredCode == 0x000122c0)
-                return SensorType.RespirationRate;
+                return SensorType.Respiration;
             if (filteredCode == 0x00012dc0)
                 return SensorType.SpO2;
             if (filteredCode == 0x000118c0)
@@ -98,7 +98,7 @@ namespace NetworkCommunication
                 case SensorType.EcgLeadIII:
                 case SensorType.EcgLeadPrecordial:
                     return new List<VitalSignType>();
-                case SensorType.RespirationRate:
+                case SensorType.Respiration:
                     return new List<VitalSignType> { VitalSignType.RespirationRate };
                 case SensorType.BloodPressure:
                     return new List<VitalSignType>
@@ -124,11 +124,64 @@ namespace NetworkCommunication
                 case SensorType.EcgLeadIII:
                 case SensorType.EcgLeadPrecordial:
                     return TimeSpan.FromSeconds(1.0/240);
-                case SensorType.RespirationRate:
+                case SensorType.Respiration:
                 case SensorType.SpO2:
                     return TimeSpan.FromSeconds(1.0/60);
                 default:
                     return TimeSpan.Zero;
+            }
+        }
+
+        public static bool IsWaveformSensorType(SensorType sensorType)
+        {
+            var waveformSensors = new[]
+            {
+                SensorType.EcgLeadI,
+                SensorType.EcgLeadII,
+                SensorType.EcgLeadIII,
+                SensorType.EcgLeadPrecordial,
+                SensorType.Respiration,
+                SensorType.SpO2
+            };
+            return sensorType.InSet(waveformSensors);
+        }
+
+        public static SensorType MapLeadToSensorType(EcgLead lead)
+        {
+            switch (lead)
+            {
+                case EcgLead.I:
+                    return SensorType.EcgLeadI;
+                case EcgLead.II:
+                    return SensorType.EcgLeadII;
+                case EcgLead.III:
+                    return SensorType.EcgLeadIII;
+                case EcgLead.V1:
+                case EcgLead.V2:
+                case EcgLead.V3:
+                case EcgLead.V4:
+                case EcgLead.V5:
+                case EcgLead.V6:
+                    return SensorType.EcgLeadPrecordial;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(lead), lead, null);
+            }
+        }
+
+        public static EcgLead MapSensorTypeToLead(SensorType sensorType)
+        {
+            switch (sensorType)
+            {
+                case SensorType.EcgLeadI:
+                    return EcgLead.I;
+                case SensorType.EcgLeadII:
+                    return EcgLead.II;
+                case SensorType.EcgLeadIII:
+                    return EcgLead.III;
+                case SensorType.EcgLeadPrecordial:
+                    return EcgLead.V1;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(sensorType), sensorType, null);
             }
         }
 

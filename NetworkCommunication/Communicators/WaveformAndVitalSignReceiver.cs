@@ -8,19 +8,26 @@ using NetworkCommunication.Objects;
 
 namespace NetworkCommunication.Communicators
 {
-    public class WaveformReceiver
+    public class WaveformAndVitalSignReceiver
     {
         readonly DataRequestSender dataRequestSender;
+        private readonly VitalSignPacketParser vitalSignPacketParser;
+        private readonly WaveformPacketParser waveformPacketParser;
 
-        public WaveformReceiver(DataRequestSender dataRequestSender)
+        public WaveformAndVitalSignReceiver(
+            DataRequestSender dataRequestSender, 
+            VitalSignPacketParser vitalSignPacketParser, 
+            WaveformPacketParser waveformPacketParser)
         {
             this.dataRequestSender = dataRequestSender;
+            this.vitalSignPacketParser = vitalSignPacketParser;
+            this.waveformPacketParser = waveformPacketParser;
         }
 
         public event EventHandler<WaveformData> NewWaveformData;
         public event EventHandler<VitalSignData> NewVitalSignData;
 
-        public async void RetrieveWaveformsFromTarget(
+        public async void StartReceiving(
             IPAddress targetAddress, 
             CancellationToken cancellationToken)
         {
@@ -49,7 +56,7 @@ namespace NetworkCommunication.Communicators
                 var timestamp = DateTime.Now;
                 try
                 {
-                    var parseResult = VitalSignPacketParser.Parse(vitalSignData.Buffer, timestamp);
+                    var parseResult = vitalSignPacketParser.Parse(vitalSignData.Buffer, timestamp);
                     NewVitalSignData?.Invoke(this, parseResult);
                 }
                 catch (Exception e)
@@ -68,7 +75,10 @@ namespace NetworkCommunication.Communicators
                 var timestamp = DateTime.Now;
                 try
                 {
-                    var parseResult = WaveformPacketParser.Parse(waveformData.Buffer, timestamp);
+                    var parseResult = waveformPacketParser.Parse(
+                        waveformData.Buffer, 
+                        waveformData.RemoteEndPoint.Address, 
+                        timestamp);
                     NewWaveformData?.Invoke(this, parseResult);
                 }
                 catch (Exception e)

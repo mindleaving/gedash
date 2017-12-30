@@ -21,5 +21,15 @@ namespace CentralMonitorGUI.ViewModels
         }
 
         public event EventHandler Trig;
+
+        public void Start()
+        {
+            timer.Start();
+        }
+
+        public void Stop()
+        {
+            timer.Stop();
+        }
     }
 }
