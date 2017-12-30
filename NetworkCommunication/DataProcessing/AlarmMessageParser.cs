@@ -43,9 +43,10 @@ namespace NetworkCommunication.DataProcessing
         {
             switch (code)
             {
-                case 0x2d:
+                case 0x2d: // Pulse search
                     return SensorType.SpO2;
-                case 0x3a:
+                case 0x3a: // Lead failure
+                case 0x56: // ST
                     return SensorType.Ecg;
                 default:
                     return SensorType.Undefined;

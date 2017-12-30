@@ -30,5 +30,10 @@ namespace NetworkCommunication.Objects
         public string Message { get; }
         public uint MessageCounter { get; }
         public DateTime Timestamp { get; }
+
+        public override string ToString()
+        {
+            return $"{Timestamp:yyyy-MM-dd HH:mm:ss}: {Message}";
+        }
     }
 }

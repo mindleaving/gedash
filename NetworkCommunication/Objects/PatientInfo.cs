@@ -10,5 +10,10 @@
 
         public string LastName { get; }
         public string FirstName { get; }
+
+        public override string ToString()
+        {
+            return $"{LastName}, {FirstName}";
+        }
     }
 }

@@ -9,7 +9,7 @@
     <Border BorderThickness="2" BorderBrush="Black" DataContext="{Binding ElementName=Self, Path=ViewModel}">
         <Grid>
             <TextBlock Text="HR" FontSize="14" FontWeight="Bold"
-                       HorizontalAlignment="Right" Margin="0 20 90 0"/>
+                       HorizontalAlignment="Right" Margin="0 20 82 0"/>
             <TextBlock Text="{Binding HeartRate}" FontSize="32" FontWeight="Bold"
                        HorizontalAlignment="Right" Margin="0 -5 10 0"/>
 

@@ -24,8 +24,11 @@ namespace CentralMonitorGUI.ViewModels
         private WaveformViewModel respirationWaveform;
         private WaveformViewModel spO2Waveform;
         private readonly Timer alarmTimeoutTimer = new Timer(TimeSpan.FromSeconds(30).TotalMilliseconds) { AutoReset = false };
-        private Brush borderBrush;
+        private Brush borderBrush = Brushes.Transparent;
+        private Brush alarmTextBrush = Brushes.Transparent;
         private bool isSelected;
+        private Alarm activeAlarm;
+        private Brush infoBarBackground = Brushes.LightGoldenrodYellow;
 
         public PatientMonitorViewModel(
             PatientMonitor monitor, 
@@ -60,12 +63,18 @@ namespace CentralMonitorGUI.ViewModels
         private void AlarmTimeoutTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             BorderBrush = Brushes.Transparent;
+            ActiveAlarm = null;
+            AlarmTextBrush = Brushes.Transparent;
+            InfoBarBackground = Brushes.LightGoldenrodYellow;
         }
 
-        private void Monitor_NewAlarm(object sender, Alarm e)
+        private void Monitor_NewAlarm(object sender, Alarm alarm)
         {
             alarmTimeoutTimer.Stop();
+            ActiveAlarm = alarm;
+            AlarmTextBrush = Brushes.Red;
             BorderBrush = Brushes.Red;
+            InfoBarBackground = Brushes.MistyRose;
             alarmTimeoutTimer.Start();
         }
 
@@ -108,6 +117,17 @@ namespace CentralMonitorGUI.ViewModels
 
         public PatientMonitor Monitor { get; }
 
+
+        public Alarm ActiveAlarm
+        {
+            get { return activeAlarm; }
+            set
+            {
+                activeAlarm = value; 
+                OnPropertyChanged();
+            }
+        }
+
         public bool IsSelected
         {
             get { return isSelected; }
@@ -118,6 +138,18 @@ namespace CentralMonitorGUI.ViewModels
             }
         }
 
+        public Brush AlarmTextBrush
+        {
+            get
+            {
+                return alarmTextBrush;
+            }
+            private set
+            {
+                alarmTextBrush = value;
+                OnPropertyChanged();
+            }
+        }
         public Brush BorderBrush
         {
             get
@@ -201,6 +233,7 @@ namespace CentralMonitorGUI.ViewModels
             }
         }
 
+        public IList<EcgLead> EcgLeads { get; } = (EcgLead[]) Enum.GetValues(typeof(EcgLead));
         public EcgLead SelectedEcgLead
         {
             get { return selectedEcgLead; }
@@ -219,12 +252,27 @@ namespace CentralMonitorGUI.ViewModels
                     selectedEcgLead = EcgLead.II;
                 }
                 if(waveformViewModels.ContainsKey(ecgSensorType))
+                {
                     EcgWaveform = waveformViewModels[ecgSensorType];
-                EcgWaveform = new WaveformViewModel(
-                    ecgSensorType,
-                    new WaveformBuffer(ecgSensorType, 0),
-                    updateTrigger,
-                    timeToShow);
+                }
+                else
+                {
+                    EcgWaveform = new WaveformViewModel(
+                        ecgSensorType,
+                        new WaveformBuffer(ecgSensorType, 0),
+                        updateTrigger,
+                        timeToShow);
+                }
+                OnPropertyChanged();
+            }
+        }
+
+        public Brush InfoBarBackground
+        {
+            get { return infoBarBackground; }
+            set
+            {
+                infoBarBackground = value; 
                 OnPropertyChanged();
             }
         }

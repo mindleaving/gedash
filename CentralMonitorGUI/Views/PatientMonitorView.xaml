@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:views="clr-namespace:CentralMonitorGUI.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="80" d:DesignWidth="1000"
+             d:DesignHeight="180" d:DesignWidth="1000"
              Name="Self">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -13,32 +13,53 @@
     <Border BorderBrush="{Binding BorderBrush}" BorderThickness="3"
             DataContext="{Binding ElementName=Self, Path=ViewModel}">
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-            <!-- Sensor selection -->
-            <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" Margin="5 0">
-                <ToggleButton Content="ECG" IsChecked="{Binding EcgEnabled}" Margin="0 2"/>
-                <ToggleButton Content="RR"  IsChecked="{Binding RespirationEnabled}" Margin="0 2"/>
-                <ToggleButton Content="SpO2" IsChecked="{Binding SpO2Enabled}" Margin="0 2"/>
+            <StackPanel Grid.Row="0" Background="{Binding InfoBarBackground}" Orientation="Horizontal"
+                        Margin="5 0">
+                <Label Content="Ward: " VerticalAlignment="Bottom"/>
+                <Label Content="{Binding Monitor.WardName}" FontWeight="Bold" FontSize="14" VerticalAlignment="Bottom"/>
+                <Label Content="Bed: " VerticalAlignment="Bottom"/>
+                <Label Content="{Binding Monitor.BedName}" FontWeight="Bold" FontSize="14" VerticalAlignment="Bottom"/>
+                <Label Content="(" VerticalAlignment="Bottom"/>
+                <Label Content="{Binding Monitor.PatientInfo}" VerticalAlignment="Bottom"/>
+                <Label Content=")" VerticalAlignment="Bottom"/>
+                <Label Content="Alarm: " Margin="30 0 0 0" VerticalAlignment="Bottom"/>
+                <Label Content="{Binding ActiveAlarm}" FontWeight="Bold" FontSize="14"
+                       Foreground="{Binding AlarmTextBrush}" VerticalAlignment="Bottom"/>
             </StackPanel>
-
-            <!-- Waveforms -->
-            <Grid Grid.Column="1">
+            <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto" MinWidth="120"/>
                 </Grid.ColumnDefinitions>
-                <views:WaveformView Grid.Column="0" ViewModel="{Binding EcgWaveform}" Visibility="{Binding EcgEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                <views:WaveformView Grid.Column="1" ViewModel="{Binding RespirationWaveform}" Visibility="{Binding RespirationEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                <views:WaveformView Grid.Column="2" ViewModel="{Binding SpO2Waveform}" Visibility="{Binding SpO2Enabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
-            </Grid>
 
-            <views:VitalSignView Grid.Column="2" ViewModel="{Binding VitalSignValues}"/>
+                <!-- Sensor selection -->
+                <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" Margin="5 0">
+                    <ComboBox ItemsSource="{Binding EcgLeads}" SelectedItem="{Binding SelectedEcgLead}"/>
+                    <ToggleButton Content="ECG" IsChecked="{Binding EcgEnabled}" Margin="0 2"/>
+                    <ToggleButton Content="RR"  IsChecked="{Binding RespirationEnabled}" Margin="0 2"/>
+                    <ToggleButton Content="SpO2" IsChecked="{Binding SpO2Enabled}" Margin="0 2"/>
+                </StackPanel>
+
+                <!-- Waveforms -->
+                <Grid Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <views:WaveformView Grid.Column="0" ViewModel="{Binding EcgWaveform}" Visibility="{Binding EcgEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <views:WaveformView Grid.Column="1" ViewModel="{Binding RespirationWaveform}" Visibility="{Binding RespirationEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <views:WaveformView Grid.Column="2" ViewModel="{Binding SpO2Waveform}" Visibility="{Binding SpO2Enabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                </Grid>
+
+                <views:VitalSignView Grid.Column="2" ViewModel="{Binding VitalSignValues}"/>
+            </Grid>
         </Grid>
     </Border>
 </UserControl>
