@@ -46,7 +46,7 @@ namespace CentralMonitorGUI.ViewModels
                     Values = chartValues
                 }
             };
-            //updateTrigger.Trig += UpdateTrigger_Trig;
+            updateTrigger.Trig += UpdateTrigger_Trig;
         }
 
         private static Brush MapSensorTypeToBrush(SensorType sensorType)
