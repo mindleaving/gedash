@@ -18,7 +18,7 @@ namespace CentralMonitorGUI
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
             var connectionLostTimeout = TimeSpan.FromSeconds(30);
-            var waveformUpdateInterval = TimeSpan.FromMilliseconds(20);
+            var waveformUpdateInterval = TimeSpan.FromMilliseconds(33);
 
             var discoveryMessageParser = new DiscoveryMessageParser();
             var discoveryMessageReceiver = new DiscoveryMessageReceiver(discoveryMessageParser);

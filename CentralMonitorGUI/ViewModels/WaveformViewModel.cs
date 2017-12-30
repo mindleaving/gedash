@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Windows.Media;
-using LiveCharts;
-using LiveCharts.Defaults;
-using LiveCharts.Wpf;
 using NetworkCommunication;
 using NetworkCommunication.DataStorage;
 using NetworkCommunication.Objects;
+using OxyPlot;
+using OxyPlot.Series;
 
 namespace CentralMonitorGUI.ViewModels
 {
@@ -16,8 +15,8 @@ namespace CentralMonitorGUI.ViewModels
         private readonly TimeSpan timeToShow;
         private readonly UpdateTrigger updateTrigger;
         private readonly int sampleCountPerUpdate;
-        private int currentSampleIdx;
-        private readonly ChartValues<ObservableValue> chartValues;
+        private readonly int sampleCount;
+        private int sampleIdx;
 
         public WaveformViewModel(
             SensorType sensorType, 
@@ -31,25 +30,12 @@ namespace CentralMonitorGUI.ViewModels
             SensorType = sensorType;
             sampleCountPerUpdate = Informations.SensorBatchSizes[sensorType];
             var samplesPerSecond = Informations.SensorBatchesPerSecond * Informations.SensorBatchSizes[sensorType];
-            var sampleCount = (int) (timeToShow.TotalSeconds * samplesPerSecond);
-            var initialValues = Enumerable.Range(0, sampleCount)
-                .Select(idx => new ObservableValue(double.NaN));
-            chartValues = new ChartValues<ObservableValue>(initialValues);
-            var sensorColor = MapSensorTypeToBrush(sensorType);
-            WaveformSeries = new SeriesCollection
-            {
-                new LineSeries
-                {
-                    Fill = Brushes.Transparent,
-                    PointGeometry = null,
-                    Stroke = sensorColor,
-                    Values = chartValues
-                }
-            };
+            sampleCount = (int) (timeToShow.TotalSeconds * samplesPerSecond);
+            SetupPlotModel();
             updateTrigger.Trig += UpdateTrigger_Trig;
         }
 
-        private static Brush MapSensorTypeToBrush(SensorType sensorType)
+        private static Color MapSensorTypeToBrush(SensorType sensorType)
         {
             switch (sensorType)
             {
@@ -58,35 +44,55 @@ namespace CentralMonitorGUI.ViewModels
                 case SensorType.EcgLeadII:
                 case SensorType.EcgLeadIII:
                 case SensorType.EcgLeadPrecordial:
-                    return Brushes.LawnGreen;
+                    return Colors.LawnGreen;
                 case SensorType.Respiration:
-                    return Brushes.Yellow;
+                    return Colors.Yellow;
                 case SensorType.SpO2:
-                    return Brushes.LightSkyBlue;
+                    return Colors.LightSkyBlue;
                 default:
-                    return Brushes.White;
+                    return Colors.White;
             }
         }
 
+        private void SetupPlotModel()
+        {
+            PlotModel = new PlotModel();
+
+            var sensorColor = MapSensorTypeToBrush(SensorType);
+            PlotModel.Series.Add(new LineSeries
+            {
+                Color = OxyColor.FromArgb(sensorColor.A, sensorColor.R, sensorColor.G, sensorColor.B),
+                MarkerType = MarkerType.None,
+                LineStyle = LineStyle.Solid
+            });
+        }
+
+        private volatile bool isUpdating;
         private void UpdateTrigger_Trig(object sender, EventArgs e)
         {
-            var newSamples = waveformSource.GetValues(waveformSource.AvailableSampleCount - sampleCountPerUpdate).ToList();
-            for (int sampleIdx = 0; sampleIdx < newSamples.Count; sampleIdx++)
+            if(isUpdating)
+                return;
+            lock (PlotModel.SyncRoot)
             {
-                if (newSamples.Count > sampleIdx)
-                    chartValues[currentSampleIdx].Value = newSamples[sampleIdx];
-                else
-                    chartValues[currentSampleIdx].Value = double.NaN;
-                currentSampleIdx++;
-                if (currentSampleIdx == chartValues.Count)
-                    currentSampleIdx = 0;
+                isUpdating = true;
+
+                var newSamples = waveformSource.GetValues(waveformSource.AvailableSampleCount - sampleCountPerUpdate).ToList();
+                var series = (LineSeries)PlotModel.Series[0];
+                foreach (var sample in newSamples)
+                {
+                    series.Points.Add(new DataPoint(sampleIdx, sample));
+                    sampleIdx++;
+                }
+                while (series.Points.Count > sampleCount)
+                    series.Points.RemoveAt(0);
+
+                isUpdating = false;
             }
-            // Invalid next value
-            chartValues[currentSampleIdx].Value = double.NaN;
+            PlotModel.InvalidatePlot(true);
         }
 
         public SensorType SensorType { get; }
-        public SeriesCollection WaveformSeries { get; }
+        public PlotModel PlotModel { get; private set; }
 
         public void Dispose()
         {
