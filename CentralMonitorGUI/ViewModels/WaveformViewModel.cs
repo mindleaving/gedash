@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Windows.Media;
 using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Wpf;
@@ -34,20 +35,43 @@ namespace CentralMonitorGUI.ViewModels
             var initialValues = Enumerable.Range(0, sampleCount)
                 .Select(idx => new ObservableValue(double.NaN));
             chartValues = new ChartValues<ObservableValue>(initialValues);
+            var sensorColor = MapSensorTypeToBrush(sensorType);
             WaveformSeries = new SeriesCollection
             {
                 new LineSeries
                 {
+                    Fill = Brushes.Transparent,
+                    PointGeometry = null,
+                    Stroke = sensorColor,
                     Values = chartValues
                 }
             };
-            updateTrigger.Trig += UpdateTrigger_Trig;
+            //updateTrigger.Trig += UpdateTrigger_Trig;
+        }
+
+        private static Brush MapSensorTypeToBrush(SensorType sensorType)
+        {
+            switch (sensorType)
+            {
+                case SensorType.Ecg:
+                case SensorType.EcgLeadI:
+                case SensorType.EcgLeadII:
+                case SensorType.EcgLeadIII:
+                case SensorType.EcgLeadPrecordial:
+                    return Brushes.LawnGreen;
+                case SensorType.Respiration:
+                    return Brushes.Yellow;
+                case SensorType.SpO2:
+                    return Brushes.LightSkyBlue;
+                default:
+                    return Brushes.White;
+            }
         }
 
         private void UpdateTrigger_Trig(object sender, EventArgs e)
         {
-            var newSamples = waveformSource.GetValues(sampleCountPerUpdate).ToList();
-            for (int sampleIdx = 0; sampleIdx < sampleCountPerUpdate; sampleIdx++)
+            var newSamples = waveformSource.GetValues(waveformSource.AvailableSampleCount - sampleCountPerUpdate).ToList();
+            for (int sampleIdx = 0; sampleIdx < newSamples.Count; sampleIdx++)
             {
                 if (newSamples.Count > sampleIdx)
                     chartValues[currentSampleIdx].Value = newSamples[sampleIdx];

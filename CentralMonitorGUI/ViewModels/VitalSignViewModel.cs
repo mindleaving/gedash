@@ -32,9 +32,9 @@ namespace CentralMonitorGUI.ViewModels
             SpO2 = spO2Value?.Value.ToString() ?? "X";
         }
 
-        private string heartRate = "80";
-        private string respirationRate = "12";
-        private string spO2 = "99";
+        private string heartRate = "X";
+        private string respirationRate = "X";
+        private string spO2 = "X";
 
         public string HeartRate
         {

@@ -15,6 +15,7 @@ namespace NetworkCommunication.DataStorage
         }
 
         public SensorType SensorType { get; }
+        public int AvailableSampleCount => buffer.Count;
 
         public void AddData(IList<short> data)
         {

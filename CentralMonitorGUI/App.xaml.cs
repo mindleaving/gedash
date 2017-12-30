@@ -18,7 +18,7 @@ namespace CentralMonitorGUI
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
             var connectionLostTimeout = TimeSpan.FromSeconds(30);
-            var waveformUpdateInterval = TimeSpan.FromMilliseconds(100);
+            var waveformUpdateInterval = TimeSpan.FromMilliseconds(20);
 
             var discoveryMessageParser = new DiscoveryMessageParser();
             var discoveryMessageReceiver = new DiscoveryMessageReceiver(discoveryMessageParser);
@@ -28,7 +28,9 @@ namespace CentralMonitorGUI
             var vitalSignPacketParser = new VitalSignPacketParser();
             var waveformPacketParser = new WaveformPacketParser();
             var waveformAndVitalSignReceiver = new WaveformAndVitalSignReceiver(dataRequestSender, vitalSignPacketParser, waveformPacketParser);
-            var dataConnectionManager = new DataConnectionManager(network, waveformAndVitalSignReceiver);
+            var alarmMessageParser = new AlarmMessageParser();
+            var alarmReceiver = new AlarmReceiver(alarmMessageParser);
+            var dataConnectionManager = new DataConnectionManager(network, waveformAndVitalSignReceiver, alarmReceiver);
             var updateTrigger = new UpdateTrigger(waveformUpdateInterval);
             var mainViewModel = new MainViewModel(network, dataConnectionManager, updateTrigger);
             var mainWindow = new MainWindow(mainViewModel);
@@ -44,6 +46,7 @@ namespace CentralMonitorGUI
                 waveformAndVitalSignReceiver.NewWaveformData += (receiver, data) => waveformStorer.Store(data);
                 waveformAndVitalSignReceiver.NewVitalSignData += (receiver, data) => vitalSignsStorer.Store(data);
                 discoveryMessageReceiver.StartReceiving(mainCancellationTokenSource.Token);
+                alarmReceiver.StartReceiving(mainCancellationTokenSource.Token);
                 updateTrigger.Start();
 
                 mainWindow.ShowDialog();

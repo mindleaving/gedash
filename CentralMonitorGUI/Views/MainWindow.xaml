@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:CentralMonitorGUI.Views"
-        xmlns:wpf="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
         x:Name="Self"
         Title="Central Monitor" Height="400" Width="1000">
@@ -12,7 +11,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="200"/>
         </Grid.RowDefinitions>
 
         <Menu Grid.Row="0">
@@ -21,22 +19,12 @@
             </MenuItem>
         </Menu>
 
-        <ListView Grid.Row="1" ItemsSource="{Binding Monitors}">
-            <ListView.ItemTemplate>
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding Monitors}">
+            <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <views:PatientMonitorView ViewModel="{Binding}"/>
                 </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <views:ChartCanvasView Grid.Column="0" ViewModel="{Binding ChartViewModel1}"/>
-            <views:ChartCanvasView Grid.Column="1" ViewModel="{Binding ChartViewModel2}"/>
-        </Grid>
-
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </Grid>
 </Window>

@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Communicators\AlarmReceiver.cs" />
     <Compile Include="Communicators\DataConnectionManager.cs" />
+    <Compile Include="DataProcessing\AlarmMessageParser.cs" />
     <Compile Include="DataProcessing\DataRequestGenerator.cs" />
     <Compile Include="Communicators\DataRequestReceiver.cs" />
     <Compile Include="Communicators\DataRequestSender.cs" />

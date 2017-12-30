@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Commons;
 using NetworkCommunication.Objects;
@@ -11,19 +10,24 @@ namespace NetworkCommunication.Communicators
     {
         private readonly MonitorNetwork network;
         private readonly WaveformAndVitalSignReceiver waveformAndVitalSignReceiver;
+        private readonly AlarmReceiver alarmReceiver;
         private readonly Dictionary<PatientMonitor, CancellationTokenSource> cancellationTokenSources = new Dictionary<PatientMonitor, CancellationTokenSource>();
 
         public DataConnectionManager(
             MonitorNetwork network,
-            WaveformAndVitalSignReceiver waveformAndVitalSignReceiver)
+            WaveformAndVitalSignReceiver waveformAndVitalSignReceiver,
+            AlarmReceiver alarmReceiver)
         {
             this.network = network;
             this.waveformAndVitalSignReceiver = waveformAndVitalSignReceiver;
+            this.alarmReceiver = alarmReceiver;
 
             network.NewMonitorDiscovered += Network_NewMonitorDiscovered;
             network.MonitorDisappeared += Network_MonitorDisappeared;
             waveformAndVitalSignReceiver.NewVitalSignData += NewVitalSignsReceived;
             waveformAndVitalSignReceiver.NewWaveformData += NewWaveformDataReceived;
+
+            alarmReceiver.NewAlarmReceived += AlarmReceiver_NewAlarmReceived;
         }
 
         private void Network_NewMonitorDiscovered(object sender, PatientMonitor newMonitor)
@@ -47,10 +51,7 @@ namespace NetworkCommunication.Communicators
             if(!network.Monitors.ContainsKey(vitalSignData.IPAddress))
                 return;
             var monitor = network.Monitors[vitalSignData.IPAddress];
-            foreach (var vitalSignValue in vitalSignData.VitalSignValues)
-            {
-                monitor.UpdateVitalSign(vitalSignValue);
-            }
+            monitor.VitalSignValues = vitalSignData.VitalSignValues;
         }
 
         private void NewWaveformDataReceived(object sender, WaveformData waveformData)
@@ -59,6 +60,14 @@ namespace NetworkCommunication.Communicators
                 return;
             var monitor = network.Monitors[waveformData.IPAddress];
             monitor.AddWaveformData(waveformData);
+        }
+
+        private void AlarmReceiver_NewAlarmReceived(object sender, Alarm alarm)
+        {
+            if(!network.Monitors.ContainsKey(alarm.IPAddress))
+                return;
+            var monitor = network.Monitors[alarm.IPAddress];
+            monitor.AddAlarm(alarm);
         }
 
         public void Dispose()

@@ -1,19 +1,34 @@
-﻿namespace NetworkCommunication.Objects
+﻿using System;
+using System.Net;
+
+namespace NetworkCommunication.Objects
 {
     public class Alarm
     {
-        public Alarm(
-            PatientMonitor monitor, 
-            SensorType sensorType, 
-            VitalSignValue triggeringValue)
+        public Alarm(IPAddress ipAddress,
+            string wardName,
+            string bedName,
+            SensorType sensorType,
+            string message,
+            uint messageCounter,
+            DateTime timestamp)
         {
-            Monitor = monitor;
+            IPAddress = ipAddress;
+            WardName = wardName;
+            BedName = bedName;
             SensorType = sensorType;
-            TriggeringValue = triggeringValue;
+            Message = message;
+            MessageCounter = messageCounter;
+            Timestamp = timestamp;
         }
 
-        public PatientMonitor Monitor { get; }
+
+        public IPAddress IPAddress { get; }
+        public string WardName { get; }
+        public string BedName { get; }
         public SensorType SensorType { get; }
-        public VitalSignValue TriggeringValue { get; }
+        public string Message { get; }
+        public uint MessageCounter { get; }
+        public DateTime Timestamp { get; }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Timers;
 using System.Windows;
+using System.Windows.Media;
 using NetworkCommunication;
 using NetworkCommunication.DataStorage;
 using NetworkCommunication.Objects;
@@ -21,6 +23,9 @@ namespace CentralMonitorGUI.ViewModels
         private WaveformViewModel ecgWaveform;
         private WaveformViewModel respirationWaveform;
         private WaveformViewModel spO2Waveform;
+        private readonly Timer alarmTimeoutTimer = new Timer(TimeSpan.FromSeconds(30).TotalMilliseconds) { AutoReset = false };
+        private Brush borderBrush;
+        private bool isSelected;
 
         public PatientMonitorViewModel(
             PatientMonitor monitor, 
@@ -35,7 +40,9 @@ namespace CentralMonitorGUI.ViewModels
             EcgWaveform = new WaveformViewModel(SensorType.EcgLeadII, new WaveformBuffer(SensorType.EcgLeadII, 0), updateTrigger, timeToShow);
             RespirationWaveform = new WaveformViewModel(SensorType.Respiration, new WaveformBuffer(SensorType.Respiration, 0), updateTrigger, timeToShow);
             SpO2Waveform = new WaveformViewModel(SensorType.SpO2, new WaveformBuffer(SensorType.SpO2, 0), updateTrigger, timeToShow);
+            alarmTimeoutTimer.Elapsed += AlarmTimeoutTimer_Elapsed;
             monitor.NewWaveformSensorConnected += Monitor_NewWaveformSensorConnected;
+            monitor.NewAlarm += Monitor_NewAlarm;
             foreach (var kvp in monitor.WaveformSources)
             {
                 var sensorType = kvp.Key;
@@ -50,9 +57,21 @@ namespace CentralMonitorGUI.ViewModels
             }
         }
 
+        private void AlarmTimeoutTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            BorderBrush = Brushes.Transparent;
+        }
+
+        private void Monitor_NewAlarm(object sender, Alarm e)
+        {
+            alarmTimeoutTimer.Stop();
+            BorderBrush = Brushes.Red;
+            alarmTimeoutTimer.Start();
+        }
+
         private void Monitor_NewWaveformSensorConnected(object sender, SensorType sensorType)
         {
-            if(!waveformViewModels.ContainsKey(sensorType))
+            if(waveformViewModels.ContainsKey(sensorType))
                 return;
             var waveformSource = Monitor.WaveformSources[sensorType];
             var waveformViewModel = new WaveformViewModel(
@@ -88,6 +107,32 @@ namespace CentralMonitorGUI.ViewModels
         }
 
         public PatientMonitor Monitor { get; }
+
+        public bool IsSelected
+        {
+            get { return isSelected; }
+            set
+            {
+                isSelected = value; 
+                OnPropertyChanged();
+            }
+        }
+
+        public Brush BorderBrush
+        {
+            get
+            {
+                return IsSelected
+                    ? Brushes.Blue
+                    : borderBrush;
+            }
+            private set
+            {
+                borderBrush = value; 
+                OnPropertyChanged();
+            }
+        }
+
         public WaveformViewModel EcgWaveform
         {
             get { return ecgWaveform; }

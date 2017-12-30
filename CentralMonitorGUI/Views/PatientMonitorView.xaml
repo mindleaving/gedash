@@ -10,27 +10,35 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </UserControl.Resources>
-    <Grid DataContext="{Binding ElementName=Self, Path=ViewModel}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        
-        <!-- Sensor selection -->
-        <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" Margin="5 0">
-            <ToggleButton Content="ECG" IsChecked="{Binding EcgEnabled}" Margin="0 2"/>
-            <ToggleButton Content="RR"  IsChecked="{Binding RespirationEnabled}" Margin="0 2"/>
-            <ToggleButton Content="SpO2" IsChecked="{Binding SpO2Enabled}" Margin="0 2"/>
-        </StackPanel>
+    <Border BorderBrush="{Binding BorderBrush}" BorderThickness="3"
+            DataContext="{Binding ElementName=Self, Path=ViewModel}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Waveforms -->
-        <views:WaveformView Grid.Column="1" ViewModel="{Binding EcgWaveform}" Visibility="{Binding EcgEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
-        <views:WaveformView Grid.Column="2" ViewModel="{Binding RespirationWaveform}" Visibility="{Binding EcgEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
-        <views:WaveformView Grid.Column="3" ViewModel="{Binding SpO2Waveform}" Visibility="{Binding EcgEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            <!-- Sensor selection -->
+            <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" Margin="5 0">
+                <ToggleButton Content="ECG" IsChecked="{Binding EcgEnabled}" Margin="0 2"/>
+                <ToggleButton Content="RR"  IsChecked="{Binding RespirationEnabled}" Margin="0 2"/>
+                <ToggleButton Content="SpO2" IsChecked="{Binding SpO2Enabled}" Margin="0 2"/>
+            </StackPanel>
 
-        <views:VitalSignView Grid.Column="4" ViewModel="{Binding VitalSignValues}"/>
-    </Grid>
+            <!-- Waveforms -->
+            <Grid Grid.Column="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <views:WaveformView Grid.Column="0" ViewModel="{Binding EcgWaveform}" Visibility="{Binding EcgEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <views:WaveformView Grid.Column="1" ViewModel="{Binding RespirationWaveform}" Visibility="{Binding RespirationEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <views:WaveformView Grid.Column="2" ViewModel="{Binding SpO2Waveform}" Visibility="{Binding SpO2Enabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            </Grid>
+
+            <views:VitalSignView Grid.Column="2" ViewModel="{Binding VitalSignValues}"/>
+        </Grid>
+    </Border>
 </UserControl>

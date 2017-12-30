@@ -51,7 +51,8 @@ namespace NetworkCommunication
             var discoveryMessageSender = new DiscoveryMessageSender();
             var discoveryMessageParser = new DiscoveryMessageParser();
             var discoveryMessageReceiver = new DiscoveryMessageReceiver(discoveryMessageParser);
-            var alarmReceiver = new AlarmReceiver();
+            var alarmMessageParser = new AlarmMessageParser();
+            var alarmReceiver = new AlarmReceiver(alarmMessageParser);
             var dataRequestGenerator = new DataRequestGenerator();
             var dataRequestSender = new DataRequestSender(dataRequestGenerator);
             var waveformMessageBuilder = new WaveformMessageBuilder(simulatedSensors, simulators);

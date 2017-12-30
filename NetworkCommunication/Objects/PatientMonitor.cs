@@ -7,8 +7,8 @@ namespace NetworkCommunication.Objects
 {
     public class PatientMonitor
     {
-        private static readonly TimeSpan waveformBufferTime = TimeSpan.FromSeconds(30);
-        private readonly List<VitalSignValue> vitalSignValues = new List<VitalSignValue>();
+        private static readonly TimeSpan WaveformBufferTime = TimeSpan.FromSeconds(30);
+        private List<VitalSignValue> vitalSignValues = new List<VitalSignValue>();
 
         public PatientMonitor(
             IPAddress ipAddress, 
@@ -27,17 +27,16 @@ namespace NetworkCommunication.Objects
         public string BedName { get; }
         public PatientInfo PatientInfo { get; }
         public DateTime LastContactTime { get; set; }
+        public Alarm LatestAlarm { get; private set; }
+        public event EventHandler<Alarm> NewAlarm;
 
         public Dictionary<SensorType, IWaveformSource> WaveformSources { get; } = new Dictionary<SensorType, IWaveformSource>();
-        public IReadOnlyCollection<VitalSignValue> VitalSignValues => vitalSignValues;
         public event EventHandler<SensorType> NewWaveformSensorConnected;
 
-        public void UpdateVitalSign(VitalSignValue vitalSignValue)
+        public List<VitalSignValue> VitalSignValues
         {
-            vitalSignValues.RemoveAll(x =>
-                x.SensorType == vitalSignValue.SensorType
-                && x.VitalSignType == vitalSignValue.VitalSignType);
-            vitalSignValues.Add(vitalSignValue);
+            get { return vitalSignValues; }
+            set { vitalSignValues = value ?? new List<VitalSignValue>(); }
         }
 
         public void AddWaveformData(WaveformData waveformData)
@@ -50,12 +49,18 @@ namespace NetworkCommunication.Objects
                 if(!WaveformSources.ContainsKey(sensorType))
                 {
                     var samplesPerSecond = Informations.SensorBatchesPerSecond * Informations.SensorBatchSizes[sensorType];
-                    var bufferSize = (int)(waveformBufferTime.TotalSeconds * samplesPerSecond);
+                    var bufferSize = (int)(WaveformBufferTime.TotalSeconds * samplesPerSecond);
                     WaveformSources.Add(sensorType, new WaveformBuffer(sensorType, bufferSize));
                     NewWaveformSensorConnected?.Invoke(this, sensorType);
                 }
                 WaveformSources[sensorType].AddData(waveformValues);
             }
+        }
+
+        public void AddAlarm(Alarm alarm)
+        {
+            LatestAlarm = alarm;
+            NewAlarm?.Invoke(this, alarm);
         }
 
         public override bool Equals(object obj)
