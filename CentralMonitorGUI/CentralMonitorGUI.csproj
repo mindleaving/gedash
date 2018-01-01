@@ -67,6 +67,9 @@
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\VitalSignViewModel.cs" />
     <Compile Include="ViewModels\WaveformViewModel.cs" />
+    <Compile Include="Views\DataExplorerWindow.xaml.cs">
+      <DependentUpon>DataExplorerWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\PatientMonitorView.xaml.cs">
       <DependentUpon>PatientMonitorView.xaml</DependentUpon>
     </Compile>
@@ -76,6 +79,10 @@
     <Compile Include="Views\WaveformView.xaml.cs">
       <DependentUpon>WaveformView.xaml</DependentUpon>
     </Compile>
+    <Page Include="Views\DataExplorerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

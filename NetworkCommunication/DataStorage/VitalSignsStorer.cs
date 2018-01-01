@@ -10,16 +10,21 @@ namespace NetworkCommunication.DataStorage
     {
         private const string FileExtension = "csv";
         private const char Delimiter = ';';
+        private const string FilePrefix = "GEDash_vitalSigns";
         private const string TimestampColumnName = "Timestamp";
-        private TextWriter writer;
-        private readonly string directory;
+        private DatedFileWriter writer;
+        private readonly IMonitorDatabase monitorDatabase;
+        private readonly FileManager fileManager;
         private readonly bool appendToFile;
-        private bool isInitialized;
         private readonly Dictionary<string, int> columnIndices = new Dictionary<string, int>();
 
-        public VitalSignsStorer(string directory, bool append)
+        public VitalSignsStorer(
+            IMonitorDatabase monitorDatabase, 
+            FileManager fileManager, 
+            bool append)
         {
-            this.directory = directory;
+            this.monitorDatabase = monitorDatabase;
+            this.fileManager = fileManager;
             appendToFile = append;
 
             BuildColumnIndexLookup();
@@ -44,23 +49,14 @@ namespace NetworkCommunication.DataStorage
             }
         }
 
-        public void Initialize()
-        {
-            if (!Directory.Exists(directory))
-                Directory.CreateDirectory(directory);
-
-            writer = new StreamWriter(Path.Combine(directory, $@"GEDash_vitalSigns.{FileExtension}"), appendToFile);
-            var header = columnIndices.OrderBy(kvp => kvp.Value)
-                .Select(kvp => kvp.Key)
-                .Aggregate((a, b) => a + Delimiter + b);
-            writer.WriteLine(header);
-            isInitialized = true;
-        }
-
         public void Store(VitalSignData vitalSignData)
         {
-            if(!isInitialized)
-                throw new InvalidOperationException($"{nameof(WaveformStorer)} not initialized");
+            if (!monitorDatabase.Monitors.ContainsKey(vitalSignData.IPAddress))
+                return;
+            var monitor = monitorDatabase.Monitors[vitalSignData.IPAddress];
+            var dateDirectory = fileManager.GetDatedPatientDirectory(vitalSignData.Timestamp, monitor.PatientInfo);
+            if(writer == null || writer.Directory != dateDirectory)
+                InitializeWriter(dateDirectory);
 
             var columns = new string[columnIndices.Count];
             columns[columnIndices[TimestampColumnName]] = vitalSignData.Timestamp.ToString("yyyy-MM-dd HH:mm:ss");
@@ -71,7 +67,7 @@ namespace NetworkCommunication.DataStorage
                     continue;
                 columns[columnIdx] = vitalSignValue.Value.ToString();
             }
-            writer.WriteLine(columns.Aggregate((a,b) => a + Delimiter + b));
+            writer.Writer.WriteLine(columns.Aggregate((a,b) => a + Delimiter + b));
         }
 
         private int GetColumnIndex(SensorType sensorType, VitalSignType vitalSignType)
@@ -87,11 +83,33 @@ namespace NetworkCommunication.DataStorage
             return $"{sensorType}_{vitalSignType}";
         }
 
+        private void InitializeWriter(string dateDirectory)
+        {
+            if (writer != null)
+            {
+                writer.Writer.Flush();
+                writer.Writer.Close();
+                writer.Writer.Dispose();
+            }
+
+            var fileName = $@"{FilePrefix}.{FileExtension}";
+            var combinedFilePath = Path.Combine(dateDirectory, fileName);
+            var writeHeader = !File.Exists(combinedFilePath);
+            writer = new DatedFileWriter(dateDirectory, fileName, appendToFile);
+            if (writeHeader)
+            {
+                var header = columnIndices.OrderBy(kvp => kvp.Value)
+                    .Select(kvp => kvp.Key)
+                    .Aggregate((a, b) => a + Delimiter + b);
+                writer.Writer.WriteLine(header);
+            }
+        }
+
         public void Dispose()
         {
-            writer.Flush();
-            writer.Close();
-            writer.Dispose();
+            writer.Writer.Flush();
+            writer.Writer.Close();
+            writer.Writer.Dispose();
         }
     }
 }

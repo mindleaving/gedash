@@ -4,7 +4,6 @@ using System.Net;
 using System.Threading;
 using NetworkCommunication.Communicators;
 using NetworkCommunication.DataProcessing;
-using NetworkCommunication.DataStorage;
 using NetworkCommunication.Objects;
 using NetworkCommunication.Simulators;
 
@@ -20,9 +19,8 @@ namespace NetworkCommunication
                 return;
             }
 
-            var ourIpAddress = IPAddress.Parse("192.168.1.194");
+            var ourIpAddress = IPAddress.Parse("192.168.1.33");
             var broadcastAddress = IPAddress.Parse("192.168.1.255");
-            var targetAddress = IPAddress.Parse(args[0]);
             var simulationSettings = new SimulationSettings();
             var simulators = new Dictionary<SensorType, ISimulator>
             {
@@ -44,13 +42,11 @@ namespace NetworkCommunication
                 SensorType.EcgLeadIII,
                 SensorType.EcgLeadPrecordial,
             };
-            var appendToFile = true;
-            var directory = $@"C:\Temp\{DateTime.Now:yyyy-MM-dd HHmmss}";
 
             var cancellationTokenSource = new CancellationTokenSource();
-            var discoveryMessageSender = new DiscoveryMessageSender(ourIpAddress, broadcastAddress);
             var discoveryMessageParser = new DiscoveryMessageParser();
             var discoveryMessageReceiver = new DiscoveryMessageReceiver(discoveryMessageParser);
+            var discoveryMessageSender = new DiscoveryMessageSender(ourIpAddress, broadcastAddress);
             var alarmMessageParser = new AlarmMessageParser();
             var alarmReceiver = new AlarmReceiver(alarmMessageParser);
             var dataRequestGenerator = new DataRequestGenerator();
@@ -62,20 +58,13 @@ namespace NetworkCommunication
 
             using(var vitalSignStreamer = new VitalSignDataStreamer(vitalSignMessageBuilder))
             using(var waveformStreamer = new WaveformStreamer(waveformMessageBuilder))
-            using (var waveformStorer = new WaveformStorer(directory, appendToFile))
-            using (var vitalSignsStorer = new VitalSignsStorer(directory, appendToFile))
             {
                 var dataRequestReceiver = new DataRequestReceiver(waveformStreamer, vitalSignStreamer);
                 var waveformReceiver = new WaveformAndVitalSignReceiver(dataRequestSender, vitalSignMessageParser, waveformMessageParser);
-                waveformReceiver.NewWaveformData += (sender, data) => waveformStorer.Store(data);
-                waveformReceiver.NewVitalSignData += (sender, data) => vitalSignsStorer.Store(data);
-                waveformStorer.Initialize();
-                vitalSignsStorer.Initialize();
 
                 discoveryMessageSender.StartSending(cancellationTokenSource.Token);
                 discoveryMessageReceiver.StartReceiving(cancellationTokenSource.Token);
                 alarmReceiver.StartReceiving(cancellationTokenSource.Token);
-                //waveformReceiver.RetrieveWaveformsFromTarget(targetAddress, cancellationTokenSource.Token);
                 dataRequestReceiver.StartListening(cancellationTokenSource.Token);
 
                 Console.ReadLine();

@@ -36,13 +36,12 @@ namespace CentralMonitorGUI
             var mainWindow = new MainWindow(mainViewModel);
 
             var appendToFile = true;
-            var directory = $@"C:\Temp\{DateTime.Now:yyyy-MM-dd HHmmss}";
+            var directory = $@"C:\Temp";
             var mainCancellationTokenSource = new CancellationTokenSource();
-            using (var waveformStorer = new WaveformStorer(directory, appendToFile))
-            using (var vitalSignsStorer = new VitalSignsStorer(directory, appendToFile))
+            var fileManager = new FileManager(directory);
+            using (var waveformStorer = new WaveformStorer(network, fileManager, appendToFile))
+            using (var vitalSignsStorer = new VitalSignsStorer(network, fileManager, appendToFile))
             {
-                waveformStorer.Initialize();
-                vitalSignsStorer.Initialize();
                 waveformAndVitalSignReceiver.NewWaveformData += (receiver, data) => waveformStorer.Store(data);
                 waveformAndVitalSignReceiver.NewVitalSignData += (receiver, data) => vitalSignsStorer.Store(data);
                 discoveryMessageReceiver.StartReceiving(mainCancellationTokenSource.Token);

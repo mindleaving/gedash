@@ -6,7 +6,7 @@ using NetworkCommunication.Communicators;
 
 namespace NetworkCommunication.Objects
 {
-    public class MonitorNetwork
+    public class MonitorNetwork : IMonitorDatabase
     {
         private readonly TimeSpan connectionLostTimeout;
         private readonly Dictionary<IPAddress, PatientMonitor> monitors = new Dictionary<IPAddress, PatientMonitor>();
