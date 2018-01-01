@@ -8,9 +8,9 @@ namespace NetworkCommunication.DataProcessing
 {
     public class WaveformMessageBuilder
     {
-        readonly IList<SensorType> sensorTypes;
-        readonly Dictionary<SensorType, ISimulator> simulators;
-        ushort sequenceNumber = 1;
+        private readonly IList<SensorType> sensorTypes;
+        private readonly Dictionary<SensorType, ISimulator> simulators;
+        private ushort sequenceNumber = 1;
 
         public WaveformMessageBuilder(
             IList<SensorType> sensorTypes, 
@@ -55,12 +55,12 @@ namespace NetworkCommunication.DataProcessing
             return bytes.ToArray();
         }
 
-        ISimulator GetDataSource(SensorType sensorType)
+        private ISimulator GetDataSource(SensorType sensorType)
         {
             return simulators[sensorType];
         }
 
-        int GetSensorTypeOrder(SensorType sensorType)
+        private int GetSensorTypeOrder(SensorType sensorType)
         {
             switch (sensorType)
             {

@@ -7,8 +7,8 @@ namespace NetworkCommunication.Communicators
 {
     public class DataRequestReceiver
     {
-        readonly WaveformStreamer waveformStreamer;
-        readonly VitalSignDataStreamer vitalSignStreamer;
+        private readonly WaveformStreamer waveformStreamer;
+        private readonly VitalSignDataStreamer vitalSignStreamer;
 
         public DataRequestReceiver(
             WaveformStreamer waveformStreamer, 
@@ -45,7 +45,7 @@ namespace NetworkCommunication.Communicators
             vitalSignStreamer.StopStreaming();
         }
 
-        DataRequestType DetermineRequestType(UdpReceiveResult request)
+        private DataRequestType DetermineRequestType(UdpReceiveResult request)
         {
             switch (request.Buffer[23])
             {

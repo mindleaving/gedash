@@ -10,10 +10,10 @@ namespace NetworkCommunication.Communicators
 {
     public class VitalSignDataStreamer : IDisposable
     {
-        readonly VitalSignMessageBuilder messageBuilder;
-        readonly TimeSpan streamingTimeout = TimeSpan.FromSeconds(30);
-        readonly ConcurrentDictionary<IPAddress, StoppableTask> streamingTasks = new ConcurrentDictionary<IPAddress, StoppableTask>();
-        readonly ConcurrentDictionary<IPAddress, DateTime> lastRequestTimestamp = new ConcurrentDictionary<IPAddress, DateTime>();
+        private readonly VitalSignMessageBuilder messageBuilder;
+        private readonly TimeSpan streamingTimeout = TimeSpan.FromSeconds(30);
+        private readonly ConcurrentDictionary<IPAddress, StoppableTask> streamingTasks = new ConcurrentDictionary<IPAddress, StoppableTask>();
+        private readonly ConcurrentDictionary<IPAddress, DateTime> lastRequestTimestamp = new ConcurrentDictionary<IPAddress, DateTime>();
 
         public VitalSignDataStreamer(VitalSignMessageBuilder vitalSignMessageBuilder)
         {
@@ -35,7 +35,7 @@ namespace NetworkCommunication.Communicators
             }
         }
 
-        async Task StartStreaming(IPEndPoint target, CancellationToken cancellationToken)
+        private async Task StartStreaming(IPEndPoint target, CancellationToken cancellationToken)
         {
             var sourcePort = Informations.VitalSignSourcePort;
             using (var udpClient = new UdpClient(sourcePort))

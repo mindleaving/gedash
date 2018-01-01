@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Net;
-using NetworkCommunication;
 using NetworkCommunication.DataProcessing;
 using NetworkCommunication.Objects;
 using NetworkCommunication.Simulators;
@@ -11,7 +10,7 @@ namespace NetworkCommunicationTest
     [TestFixture]
     public class VitalSignsMessageBuilderTest
     {
-        static readonly IList<SensorType> sensorTypes = new List<SensorType>
+        private static readonly IList<SensorType> sensorTypes = new List<SensorType>
         {
             SensorType.SpO2,
             SensorType.EcgLeadI,
@@ -19,7 +18,8 @@ namespace NetworkCommunicationTest
             SensorType.EcgLeadIII,
             SensorType.EcgLeadPrecordial
         };
-        static readonly IPAddress ipAddress = IPAddress.Parse("192.168.1.194");
+
+        private static readonly IPAddress ipAddress = IPAddress.Parse("192.168.1.194");
 
         [Test]
         public void MessageLengthAsExpected()
@@ -29,7 +29,7 @@ namespace NetworkCommunicationTest
             Assert.That(message.Length, Is.EqualTo(546));
         }
 
-        static Dictionary<SensorType, ISimulator> CreateSimulators()
+        private static Dictionary<SensorType, ISimulator> CreateSimulators()
         {
             var simulationSettings = new SimulationSettings();
             return new Dictionary<SensorType, ISimulator>

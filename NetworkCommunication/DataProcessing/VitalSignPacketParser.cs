@@ -8,16 +8,16 @@ namespace NetworkCommunication.DataProcessing
 {
     public class VitalSignPacketParser
     {
-        const int SensorEntryLength = 70;
+        private const int SensorEntryLength = 70;
 
-        const int SensorIdentifierOffset = 1;
-        const int SensorIdentifieryLength = 4;
+        private const int SensorIdentifierOffset = 1;
+        private const int SensorIdentifieryLength = 4;
 
-        const int FirstValueOffset = 6;
-        const int ValueLength = 2;
+        private const int FirstValueOffset = 6;
+        private const int ValueLength = 2;
 
-        const int FirstAlarmLimitOffset = 32;
-        const int AlarmLimitLength = 4;
+        private const int FirstAlarmLimitOffset = 32;
+        private const int AlarmLimitLength = 4;
 
         public VitalSignData Parse(byte[] buffer, DateTime timestamp)
         {

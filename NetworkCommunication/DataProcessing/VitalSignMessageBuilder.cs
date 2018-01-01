@@ -9,10 +9,10 @@ namespace NetworkCommunication.DataProcessing
 {
     public class VitalSignMessageBuilder
     {
-        readonly IPAddress ourIpAddress;
-        readonly IList<SensorType> sensorTypes;
-        readonly Dictionary<SensorType, ISimulator> simulators;
-        uint sequenceNumber = 0x00010001;
+        private readonly IPAddress ourIpAddress;
+        private readonly IList<SensorType> sensorTypes;
+        private readonly Dictionary<SensorType, ISimulator> simulators;
+        private uint sequenceNumber = 0x00010001;
 
         public VitalSignMessageBuilder(
             IList<SensorType> sensorTypes,
@@ -29,7 +29,7 @@ namespace NetworkCommunication.DataProcessing
             this.ourIpAddress = ourIpAddress;
         }
 
-        int GetSensorOrder(SensorType sensorType)
+        private int GetSensorOrder(SensorType sensorType)
         {
             switch (sensorType)
             {
@@ -148,7 +148,7 @@ namespace NetworkCommunication.DataProcessing
             return message;
         }
 
-        byte[] GetUnknownValueBytes(SensorType sensorType, byte[] sensorCodeBytes)
+        private byte[] GetUnknownValueBytes(SensorType sensorType, byte[] sensorCodeBytes)
         {
             byte categoryByte = 0x0c;
             switch (sensorType)
@@ -166,7 +166,7 @@ namespace NetworkCommunication.DataProcessing
             }
         }
 
-        static byte[] GetSensorConfig1Bytes(SensorType sensorType, byte[] sensorCodeBytes)
+        private static byte[] GetSensorConfig1Bytes(SensorType sensorType, byte[] sensorCodeBytes)
         {
             byte categoryByte = 0x03;
             switch (sensorType)
@@ -188,7 +188,7 @@ namespace NetworkCommunication.DataProcessing
             }
         }
 
-        static byte[] GetSensorConfig2Bytes(SensorType sensorType, byte[] sensorCodeBytes)
+        private static byte[] GetSensorConfig2Bytes(SensorType sensorType, byte[] sensorCodeBytes)
         {
             byte categoryByte = 0x15;
             switch (sensorType)
@@ -208,7 +208,7 @@ namespace NetworkCommunication.DataProcessing
             }
         }
 
-        static byte[] GetSensorConfig3Bytes(SensorType sensorType, byte[] sensorCodeBytes)
+        private static byte[] GetSensorConfig3Bytes(SensorType sensorType, byte[] sensorCodeBytes)
         {
             byte categoryByte = 0x02;
             switch (sensorType)
@@ -226,7 +226,7 @@ namespace NetworkCommunication.DataProcessing
             }
         }
 
-        static byte GetEcgLeadByte(EcgLead lead)
+        private static byte GetEcgLeadByte(EcgLead lead)
         {
             switch (lead)
             {
@@ -241,7 +241,7 @@ namespace NetworkCommunication.DataProcessing
             }
         }
 
-        byte GetSensorPriorityByte(SensorType sensorType)
+        private byte GetSensorPriorityByte(SensorType sensorType)
         {
             switch (sensorType)
             {
@@ -263,7 +263,7 @@ namespace NetworkCommunication.DataProcessing
             }
         }
 
-        static byte GetRespirationLeadIndicator(EcgLead lead)
+        private static byte GetRespirationLeadIndicator(EcgLead lead)
         {
             switch (lead)
             {
@@ -276,14 +276,14 @@ namespace NetworkCommunication.DataProcessing
             }
         }
 
-        static byte[] GetSensorCodeBytes(SensorType sensorType)
+        private static byte[] GetSensorCodeBytes(SensorType sensorType)
         {
             var sensorCode = Informations.SensorVitalSignCode[sensorType];
             var sensorCodeBytes = BitConverter.GetBytes(sensorCode).Reverse().ToArray();
             return sensorCodeBytes;
         }
 
-        ISimulator GetDataSource(SensorType sensorType)
+        private ISimulator GetDataSource(SensorType sensorType)
         {
             if (sensorType == SensorType.Ecg)
                 return simulators.Values.OfType<EcgSimulator>().First();

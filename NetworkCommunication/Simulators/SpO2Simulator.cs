@@ -5,10 +5,10 @@ namespace NetworkCommunication.Simulators
 {
     public class SpO2Simulator : ISimulator
     {
-        readonly SimulationSettings settings;
-        int valueIdx;
+        private readonly SimulationSettings settings;
+        private int valueIdx;
 
-        static readonly IList<short> spO2Values = new short[]
+        private static readonly IList<short> spO2Values = new short[]
         {
             664, 664, 736, 824, 1168, 1168, 1376, 1376, 1472, 1472, 1376, 1376, 1128, 1128, 976, 976, 856, 856, 848,
             848, 888, 888, 904, 904, 872, 872, 808, 808, 712, 712, 664, 664, 616, 616, 608, 608, 600, 600, 592, 592,

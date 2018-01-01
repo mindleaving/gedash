@@ -10,10 +10,10 @@ namespace NetworkCommunication.Communicators
 {
     public class WaveformStreamer : IDisposable
     {
-        readonly WaveformMessageBuilder messageBuilder;
-        readonly TimeSpan streamingTimeout = TimeSpan.FromSeconds(30);
-        readonly ConcurrentDictionary<IPAddress, StoppableTask> streamingTasks = new ConcurrentDictionary<IPAddress, StoppableTask>();
-        readonly ConcurrentDictionary<IPAddress, DateTime> lastRequestTimestamp = new ConcurrentDictionary<IPAddress, DateTime>();
+        private readonly WaveformMessageBuilder messageBuilder;
+        private readonly TimeSpan streamingTimeout = TimeSpan.FromSeconds(30);
+        private readonly ConcurrentDictionary<IPAddress, StoppableTask> streamingTasks = new ConcurrentDictionary<IPAddress, StoppableTask>();
+        private readonly ConcurrentDictionary<IPAddress, DateTime> lastRequestTimestamp = new ConcurrentDictionary<IPAddress, DateTime>();
 
         public WaveformStreamer(WaveformMessageBuilder waveformMessageBuilder)
         {
@@ -36,7 +36,7 @@ namespace NetworkCommunication.Communicators
         }
 
 
-        async Task StartStreaming(IPEndPoint target, CancellationToken cancellationToken)
+        private async Task StartStreaming(IPEndPoint target, CancellationToken cancellationToken)
         {
             var sourcePort = Informations.WaveformSourcePort;
             using (var udpClient = new UdpClient(sourcePort))

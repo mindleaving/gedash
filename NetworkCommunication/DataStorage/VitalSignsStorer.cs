@@ -8,14 +8,14 @@ namespace NetworkCommunication.DataStorage
 {
     public class VitalSignsStorer : IDisposable
     {
-        const string FileExtension = "csv";
-        const char Delimiter = ';';
-        const string TimestampColumnName = "Timestamp";
-        TextWriter writer;
-        readonly string directory;
-        readonly bool appendToFile;
-        bool isInitialized;
-        readonly Dictionary<string, int> columnIndices = new Dictionary<string, int>();
+        private const string FileExtension = "csv";
+        private const char Delimiter = ';';
+        private const string TimestampColumnName = "Timestamp";
+        private TextWriter writer;
+        private readonly string directory;
+        private readonly bool appendToFile;
+        private bool isInitialized;
+        private readonly Dictionary<string, int> columnIndices = new Dictionary<string, int>();
 
         public VitalSignsStorer(string directory, bool append)
         {
@@ -25,7 +25,7 @@ namespace NetworkCommunication.DataStorage
             BuildColumnIndexLookup();
         }
 
-        void BuildColumnIndexLookup()
+        private void BuildColumnIndexLookup()
         {
             var columnIdx = 0;
             columnIndices.Add(TimestampColumnName, columnIdx);
@@ -74,7 +74,7 @@ namespace NetworkCommunication.DataStorage
             writer.WriteLine(columns.Aggregate((a,b) => a + Delimiter + b));
         }
 
-        int GetColumnIndex(SensorType sensorType, VitalSignType vitalSignType)
+        private int GetColumnIndex(SensorType sensorType, VitalSignType vitalSignType)
         {
             var columnKey = BuildColumnKey(sensorType, vitalSignType);
             if (!columnIndices.ContainsKey(columnKey))
@@ -82,7 +82,7 @@ namespace NetworkCommunication.DataStorage
             return columnIndices[columnKey];
         }
 
-        static string BuildColumnKey(SensorType sensorType, VitalSignType vitalSignType)
+        private static string BuildColumnKey(SensorType sensorType, VitalSignType vitalSignType)
         {
             return $"{sensorType}_{vitalSignType}";
         }

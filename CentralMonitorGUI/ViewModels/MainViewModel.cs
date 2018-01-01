@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using NetworkCommunication;
 using NetworkCommunication.Communicators;
 using NetworkCommunication.Objects;
 

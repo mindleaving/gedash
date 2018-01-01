@@ -10,7 +10,7 @@ namespace NetworkCommunication.Communicators
 {
     public class WaveformAndVitalSignReceiver
     {
-        readonly DataRequestSender dataRequestSender;
+        private readonly DataRequestSender dataRequestSender;
         private readonly VitalSignPacketParser vitalSignPacketParser;
         private readonly WaveformPacketParser waveformPacketParser;
 
@@ -47,7 +47,7 @@ namespace NetworkCommunication.Communicators
             }
         }
 
-        async Task ReceiveVitalSignData(UdpClient udpClient, CancellationToken cancellationToken)
+        private async Task ReceiveVitalSignData(UdpClient udpClient, CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -66,7 +66,7 @@ namespace NetworkCommunication.Communicators
             }
         }
 
-        async Task ReceiveWaveforms(UdpClient udpClient, CancellationToken cancellationToken)
+        private async Task ReceiveWaveforms(UdpClient udpClient, CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
             {

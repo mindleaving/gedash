@@ -10,7 +10,7 @@ namespace NetworkCommunication.Communicators
 {
     public class DataRequestSender
     {
-        readonly DataRequestGenerator dataRequestGenerator;
+        private readonly DataRequestGenerator dataRequestGenerator;
 
         public DataRequestSender(DataRequestGenerator dataRequestGenerator)
         {
@@ -40,7 +40,7 @@ namespace NetworkCommunication.Communicators
             }
         }
 
-        async void SendMetadataRequest(
+        private async void SendMetadataRequest(
             VitalSignRequestData payloadData, 
             IPEndPoint target,
             UdpClient udpClient)
@@ -49,7 +49,7 @@ namespace NetworkCommunication.Communicators
             await SendBytes(target, udpClient, discoveryMessage);
         }
 
-        async void SendWaveformRequest(
+        private async void SendWaveformRequest(
             WaveformRequestData payloadData, 
             IPEndPoint target,
             UdpClient udpClient)
@@ -58,7 +58,7 @@ namespace NetworkCommunication.Communicators
             await SendBytes(target, udpClient, discoveryMessage);
         }
 
-        static async Task SendBytes(
+        private static async Task SendBytes(
             IPEndPoint target, 
             UdpClient udpClient, 
             byte[] discoveryMessage)

@@ -5,8 +5,8 @@ namespace NetworkCommunication.Simulators
 {
     public class ConstantSimulator : ISimulator
     {
-        readonly short value;
-        readonly VitalSignType vitalSignType;
+        private readonly short value;
+        private readonly VitalSignType vitalSignType;
 
         public ConstantSimulator(
             SensorType sensorType, 

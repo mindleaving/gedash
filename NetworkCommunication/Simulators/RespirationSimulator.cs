@@ -5,10 +5,10 @@ namespace NetworkCommunication.Simulators
 {
     public class RespirationSimulator : ISimulator
     {
-        readonly SimulationSettings settings;
-        int valueIdx;
+        private readonly SimulationSettings settings;
+        private int valueIdx;
 
-        static readonly IList<short> respirationValues = new short[]
+        private static readonly IList<short> respirationValues = new short[]
         {
             -251, -259, -268, -277, -286, -294, -302, -310, -318, -326, -333, -341, -349, -357, -365, -372, -379, -386,
             -391, -396, -400, -402, -404, -405, -405, -404, -401, -398, -393, -388, -381, -374, -366, -358, -349, -339,

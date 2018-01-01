@@ -8,13 +8,13 @@ namespace NetworkCommunication.DataStorage
 {
     public class WaveformStorer : IDisposable
     {
-        const string FileExtension = "csv";
-        const char Delimiter = ';';
-        const string TimestampColumnName = "Timestamp";
-        readonly Dictionary<SensorType, TextWriter> writers = new Dictionary<SensorType, TextWriter>();
-        readonly string directory;
-        readonly bool appendToFile;
         bool isInitialized;
+        private const string FileExtension = "csv";
+        private const char Delimiter = ';';
+        private const string TimestampColumnName = "Timestamp";
+        private readonly Dictionary<SensorType, TextWriter> writers = new Dictionary<SensorType, TextWriter>();
+        private readonly string directory;
+        private readonly bool appendToFile;
 
         public WaveformStorer(string directory, bool append)
         {

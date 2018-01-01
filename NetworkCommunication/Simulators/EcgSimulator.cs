@@ -6,10 +6,10 @@ namespace NetworkCommunication.Simulators
 {
     public class EcgSimulator : ISimulator
     {
-        readonly SimulationSettings settings;
-        int valueIdx;
+        private readonly SimulationSettings settings;
+        private int valueIdx;
 
-        static readonly IList<short> ecgValues = new short[]
+        private static readonly IList<short> ecgValues = new short[]
         {
             1, 15, 29, 43, 56, 69, 79, 84, 87, 89, 87, 78, 62, 37, 8, -22, -50, -77, -101, -126, -148, -167, -183, -199,
             -214, -227, -239, -251, -270, -269, -271, -273, -270, -267, -268, -269, -269, -266, -264, -263, -265, -267,

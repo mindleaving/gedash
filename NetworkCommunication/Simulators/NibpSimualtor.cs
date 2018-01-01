@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NetworkCommunication.Objects;
 
 namespace NetworkCommunication.Simulators
 {
     public class NibpSimualtor : ISimulator
     {
-        readonly SimulationSettings settings;
+        private readonly SimulationSettings settings;
 
         public NibpSimualtor(SimulationSettings settings)
         {
@@ -39,7 +40,7 @@ namespace NetworkCommunication.Simulators
 
         public short GetNextValue()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }
