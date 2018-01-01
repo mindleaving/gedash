@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 namespace NetworkCommunication.DataProcessing
 {
     public class DiscoveryData
     {
+        public DiscoveryData(IPAddress ourIpAddress)
+        {
+            IPAddress = ourIpAddress.GetAddressBytes();
+        }
         public byte[] FirstBytes { get; set; } = new byte[] {0x01, 0x04, 0x00, 0x00};
-        public byte[] IPAddress { get; set; } = new byte[] {192, 168, 1, 194};
+        public byte[] IPAddress { get; set; }
         public int Counter => 0x5a40cdc0 + (int) (DateTime.Now - new DateTime(2017, 12, 25, 10, 7, 30)).TotalSeconds;
         public string WardName { get; set; } = "HOME";
         public string BedName { get; set; } = "B-02";

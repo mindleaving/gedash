@@ -48,7 +48,7 @@ namespace NetworkCommunication
             var directory = $@"C:\Temp\{DateTime.Now:yyyy-MM-dd HHmmss}";
 
             var cancellationTokenSource = new CancellationTokenSource();
-            var discoveryMessageSender = new DiscoveryMessageSender();
+            var discoveryMessageSender = new DiscoveryMessageSender(ourIpAddress, broadcastAddress);
             var discoveryMessageParser = new DiscoveryMessageParser();
             var discoveryMessageReceiver = new DiscoveryMessageReceiver(discoveryMessageParser);
             var alarmMessageParser = new AlarmMessageParser();
@@ -72,7 +72,7 @@ namespace NetworkCommunication
                 waveformStorer.Initialize();
                 vitalSignsStorer.Initialize();
 
-                discoveryMessageSender.StartSending(broadcastAddress, cancellationTokenSource.Token);
+                discoveryMessageSender.StartSending(cancellationTokenSource.Token);
                 discoveryMessageReceiver.StartReceiving(cancellationTokenSource.Token);
                 alarmReceiver.StartReceiving(cancellationTokenSource.Token);
                 //waveformReceiver.RetrieveWaveformsFromTarget(targetAddress, cancellationTokenSource.Token);

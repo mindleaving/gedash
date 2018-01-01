@@ -9,7 +9,16 @@ namespace NetworkCommunication.Communicators
 {
     public class DiscoveryMessageSender
     {
-        public async void StartSending(IPAddress broadcastAddress, CancellationToken token)
+        private readonly IPAddress ourIpAddress;
+        private readonly IPAddress broadcastAddress;
+
+        public DiscoveryMessageSender(IPAddress ourIpAddress, IPAddress broadcastAddress)
+        {
+            this.ourIpAddress = ourIpAddress;
+            this.broadcastAddress = broadcastAddress;
+        }
+
+        public async void StartSending(CancellationToken token)
         {
             var discoveryMessageGenerator = new DiscoveryMessageGenerator();
             try
@@ -27,7 +36,7 @@ namespace NetworkCommunication.Communicators
                 //variablePortOffset %= 697;
                 var sourcePort = Informations.DiscoveryMessageSourcePort; //3004 + variablePortOffset;
                 var targetPort = Informations.DiscoveryTargetPort;
-                var payloadData = new DiscoveryData();
+                var payloadData = new DiscoveryData(ourIpAddress);
                 var discoveryMessage = discoveryMessageGenerator.GenerateDiscoveryPayload(payloadData);
                 try
                 {
