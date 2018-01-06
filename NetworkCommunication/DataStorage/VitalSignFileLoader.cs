@@ -16,51 +16,62 @@ namespace NetworkCommunication.DataStorage
         }
 
         public Dictionary<SensorVitalSignType, TimeSeries<short>> Load(
-            string directory, 
+            PatientInfo patientInfo,
             Range<DateTime> timeRange, 
             IReadOnlyList<SensorType> sensorTypes, 
             IReadOnlyList<VitalSignType> vitalSignTypes)
         {
-            var vitalSignFile = Path.Combine(directory, fileManager.GetVitalSignFileName());
             var timeSeries = new Dictionary<SensorVitalSignType, TimeSeries<short>>();
             var sensorTypeHashSet = new HashSet<SensorType>(sensorTypes);
             var vitalSignTypeHashSet = new HashSet<VitalSignType>(vitalSignTypes);
-            using (var streamReader = new StreamReader(vitalSignFile))
+
+            var startDate = timeRange.From.Date;
+            var date = startDate;
+            do
             {
-                var headerLine = streamReader.ReadLine();
-                if (headerLine == null)
-                    return timeSeries;
-
-                // Header parsing
-                var header = ParseHeader(headerLine);
-
-                string line;
-                while ((line = streamReader.ReadLine()) != null)
+                var dateDirectory = fileManager.GetDatedPatientDirectory(date, patientInfo);
+                var vitalSignFile = Path.Combine(dateDirectory, fileManager.GetVitalSignFileName());
+                using (var fileStream = new FileStream(vitalSignFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var streamReader = new StreamReader(fileStream))
                 {
-                    var splittedLine = line.Split(FileManager.Delimiter);
-                    if(splittedLine.Length != header.Count+1) // +1 for timestamp column
-                        continue;
-                    var timestamp = DateTime.Parse(splittedLine[0]);
-                    if(!timeRange.Contains(timestamp))
-                        continue;
-                    for (int columnIdx = 1; columnIdx < splittedLine.Length; columnIdx++)
-                    {
-                        var senorVitalSignKey = header[columnIdx];
-                        if(!sensorTypeHashSet.Contains(senorVitalSignKey.SensorType))
-                            continue;
-                        if(!vitalSignTypeHashSet.Contains(senorVitalSignKey.VitalSignType))
-                            continue;
+                    var headerLine = streamReader.ReadLine();
+                    if (headerLine == null)
+                        return timeSeries;
 
-                        var valueString = splittedLine[columnIdx];
-                        if(short.TryParse(valueString, out var value))
+                    // Header parsing
+                    var header = ParseHeader(headerLine);
+
+                    string line;
+                    while ((line = streamReader.ReadLine()) != null)
+                    {
+                        var splittedLine = line.Split(FileManager.Delimiter);
+                        if (splittedLine.Length != header.Count + 1) // +1 for timestamp column
                             continue;
-                        var timePoint = new TimePoint<short>(timestamp, value);
-                        if(!timeSeries.ContainsKey(senorVitalSignKey))
-                            timeSeries.Add(senorVitalSignKey, new TimeSeries<short>());
-                        timeSeries[senorVitalSignKey].Add(timePoint);
+                        var timestamp = DateTime.Parse(splittedLine[0]);
+                        if (!timeRange.Contains(timestamp))
+                            continue;
+                        for (int columnIdx = 1; columnIdx < splittedLine.Length; columnIdx++)
+                        {
+                            var senorVitalSignKey = header[columnIdx];
+                            if (!sensorTypeHashSet.Contains(senorVitalSignKey.SensorType))
+                                continue;
+                            if (!vitalSignTypeHashSet.Contains(senorVitalSignKey.VitalSignType))
+                                continue;
+
+                            var valueString = splittedLine[columnIdx];
+                            if (short.TryParse(valueString, out var value))
+                                continue;
+                            var timePoint = new TimePoint<short>(timestamp, value);
+                            if (!timeSeries.ContainsKey(senorVitalSignKey))
+                                timeSeries.Add(senorVitalSignKey, new TimeSeries<short>());
+                            timeSeries[senorVitalSignKey].Add(timePoint);
+                        }
                     }
                 }
-            }
+
+                date += TimeSpan.FromDays(1);
+            } while (timeRange.To > date);
+            
             return timeSeries;
         }
 
