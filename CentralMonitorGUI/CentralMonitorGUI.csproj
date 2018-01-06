@@ -137,6 +137,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Commons\Commons.csproj">
+      <Project>{D0E6B038-C939-487D-BB5E-A6270A0D18F5}</Project>
+      <Name>Commons</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NetworkCommunication\NetworkCommunication.csproj">
       <Project>{603afcc1-df38-4864-864b-0f604478963d}</Project>
       <Name>NetworkCommunication</Name>

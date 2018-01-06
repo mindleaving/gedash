@@ -59,27 +59,29 @@ namespace NetworkCommunication
             return SensorType.Undefined;
         }
 
-        public static SensorType MapVitalSignSenorCodeToSensorType(uint code)
+        public static SensorType MapVitalSignSenorCodeToSensorType(byte code)
         {
-            var filter = 0xfffffff0;
-            var filteredCode = code & filter;
-            if (filteredCode == 0x00013ac0)
-                return SensorType.Ecg;
-            if (filteredCode == 0x000122c0)
-                return SensorType.Respiration;
-            if (filteredCode == 0x00012dc0)
-                return SensorType.SpO2;
-            if (filteredCode == 0x000118c0)
-                return SensorType.BloodPressure;
-            if (filteredCode == 0x000156c0)
-                return SensorType.EcgLeadI;
-            if (filteredCode == 0x000157c0)
-                return SensorType.EcgLeadII;
-            if (filteredCode == 0x000158c0)
-                return SensorType.EcgLeadIII;
-            if (filteredCode == 0x000159c0)
-                return SensorType.EcgLeadPrecordial;
-            throw new ArgumentOutOfRangeException();
+            switch (code)
+            {
+                case 0x3a:
+                    return SensorType.Ecg;
+                case 0x22:
+                    return SensorType.Respiration;
+                case 0x2d:
+                    return SensorType.SpO2;
+                case 0x18:
+                    return SensorType.BloodPressure;
+                case 0x56:
+                    return SensorType.EcgLeadI;
+                case 0x57:
+                    return SensorType.EcgLeadII;
+                case 0x58:
+                    return SensorType.EcgLeadIII;
+                case 0x59:
+                    return SensorType.EcgLeadPrecordial;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(code));
+            }
         }
 
         public static IList<VitalSignType> VitalSignTypesForSensor(SensorType sensorType)

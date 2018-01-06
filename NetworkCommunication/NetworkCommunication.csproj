@@ -49,6 +49,7 @@
     <Compile Include="Communicators\DataRequestReceiver.cs" />
     <Compile Include="Communicators\DataRequestSender.cs" />
     <Compile Include="DataProcessing\DiscoveryMessageParser.cs" />
+    <Compile Include="DataStorage\AvailableDataFinder.cs" />
     <Compile Include="DataStorage\DatedFileWriter.cs" />
     <Compile Include="DataStorage\FileManager.cs" />
     <Compile Include="DataStorage\HistoryLoader.cs" />
@@ -58,6 +59,7 @@
     <Compile Include="DataStorage\VitalSignFileLoader.cs" />
     <Compile Include="DataStorage\WaveformBuffer.cs" />
     <Compile Include="DataStorage\WaveformFileLoader.cs" />
+    <Compile Include="DataStorage\WaveformWriter.cs" />
     <Compile Include="Objects\Alarm.cs" />
     <Compile Include="Objects\DataRequestType.cs" />
     <Compile Include="DataProcessing\DiscoveryMessageGenerator.cs" />

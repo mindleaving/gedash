@@ -10,25 +10,25 @@ namespace NetworkCommunication.DataStorage
     public class HistoryLoader
     {
         private readonly FileManager fileManager;
+        private readonly AvailableDataFinder availableDataFinder;
         private readonly VitalSignFileLoader vitalSignLoader;
         private readonly WaveformFileLoader waveformLoader;
 
         public HistoryLoader(
             FileManager fileManager, 
+            AvailableDataFinder availableDataFinder, 
             VitalSignFileLoader vitalSignLoader, 
             WaveformFileLoader waveformLoader)
         {
             this.fileManager = fileManager;
+            this.availableDataFinder = availableDataFinder;
             this.vitalSignLoader = vitalSignLoader;
             this.waveformLoader = waveformLoader;
         }
 
         public List<Range<DateTime>> GetAvailableDataForPatient(PatientInfo patientInfo)
         {
-            var patientDirectory = fileManager.GetPatientDirectory(patientInfo);
-            var dateDirectories = Directory.GetDirectories(patientDirectory);
-            // TODO Write file when starting data recording, such that we don't need to open all files
-            throw new NotImplementedException();
+            return availableDataFinder.FindTimePeriodsWithAvailableData(patientInfo);
         }
 
         public RecordedPatientData GetDataInRange(PatientInfo patientInfo, 

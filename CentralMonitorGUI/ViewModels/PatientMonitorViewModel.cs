@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Timers;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
+using CentralMonitorGUI.Views;
+using Commons.Wpf;
 using NetworkCommunication;
 using NetworkCommunication.DataStorage;
 using NetworkCommunication.Objects;
+using Timer = System.Timers.Timer;
 
 namespace CentralMonitorGUI.ViewModels
 {
@@ -28,6 +34,9 @@ namespace CentralMonitorGUI.ViewModels
         private bool isSelected;
         private Alarm activeAlarm;
         private Brush infoBarBackground = Brushes.LightGoldenrodYellow;
+        private readonly object dataExplorerCreationLock = new object();
+        private Thread dataExplorerThread;
+        private volatile bool isDataExplorerWindowOpen;
 
         public PatientMonitorViewModel(
             PatientMonitor monitor, 
@@ -39,6 +48,7 @@ namespace CentralMonitorGUI.ViewModels
             this.timeToShow = timeToShow;
 
             VitalSignValues = new VitalSignViewModel(monitor);
+            OpenDataExplorerWindowCommand = new RelayCommand(OpenDataExplorerWindow);
             EcgWaveform = new WaveformViewModel(SensorType.EcgLeadII, new WaveformBuffer(SensorType.EcgLeadII, 0), updateTrigger, timeToShow);
             RespirationWaveform = new WaveformViewModel(SensorType.Respiration, new WaveformBuffer(SensorType.Respiration, 0), updateTrigger, timeToShow);
             SpO2Waveform = new WaveformViewModel(SensorType.SpO2, new WaveformBuffer(SensorType.SpO2, 0), updateTrigger, timeToShow);
@@ -164,6 +174,8 @@ namespace CentralMonitorGUI.ViewModels
             }
         }
 
+        public ICommand OpenDataExplorerWindowCommand { get; }
+
         public WaveformViewModel EcgWaveform
         {
             get { return ecgWaveform; }
@@ -274,6 +286,47 @@ namespace CentralMonitorGUI.ViewModels
                 infoBarBackground = value; 
                 OnPropertyChanged();
             }
+        }
+
+        private void OpenDataExplorerWindow()
+        {
+            if (dataExplorerThread != null
+                && dataExplorerThread.IsAlive)
+            {
+                //dataExplorerWindow?.Activate();
+                return;
+            }
+            lock (dataExplorerCreationLock)
+            {
+                if (dataExplorerThread != null 
+                    && dataExplorerThread.IsAlive)
+                {
+                    //dataExplorerWindow?.Activate();
+                    return;
+                }
+                dataExplorerThread?.Abort();
+                dataExplorerThread?.Join();
+                dataExplorerThread = new Thread(CreateDataExplorerWindow);
+                dataExplorerThread.SetApartmentState(ApartmentState.STA);
+                dataExplorerThread.IsBackground = true;
+                dataExplorerThread.Start();
+                while (!dataExplorerThread.IsAlive)
+                {
+                    Thread.Sleep(10);
+                }
+            }
+        }
+
+        private void CreateDataExplorerWindow()
+        {
+            SynchronizationContext.SetSynchronizationContext(
+                new DispatcherSynchronizationContext(Dispatcher.CurrentDispatcher));
+
+            var dataExplorerWindow = new DataExplorerWindow();
+            dataExplorerWindow.Closed += (sender, args) =>
+                Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Background);
+            dataExplorerWindow.Show();
+            Dispatcher.Run();
         }
     }
 }

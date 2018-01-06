@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using NetworkCommunication.Communicators;
 using NetworkCommunication.Objects;
 
@@ -41,7 +42,7 @@ namespace CentralMonitorGUI.ViewModels
                 monitor => monitor.Monitor.Equals(disappearedMonitor));
             if(viewModelToBeRemoved == null)
                 return;
-            Monitors.Remove(viewModelToBeRemoved);
+            Application.Current.Dispatcher.BeginInvoke(new Action(() => Monitors.Remove(viewModelToBeRemoved)));
         }
 
         public ObservableCollection<PatientMonitorViewModel> Monitors { get; } = new ObservableCollection<PatientMonitorViewModel>();

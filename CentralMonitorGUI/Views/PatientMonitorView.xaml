@@ -18,7 +18,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0" Background="{Binding InfoBarBackground}" Orientation="Horizontal"
+            <DockPanel Grid.Row="0" Background="{Binding InfoBarBackground}"
                         Margin="5 0">
                 <Label Content="Ward: " VerticalAlignment="Bottom"/>
                 <Label Content="{Binding Monitor.WardName}" FontWeight="Bold" FontSize="14" VerticalAlignment="Bottom"/>
@@ -30,7 +30,9 @@
                 <Label Content="Alarm: " Margin="30 0 0 0" VerticalAlignment="Bottom"/>
                 <Label Content="{Binding ActiveAlarm}" FontWeight="Bold" FontSize="14"
                        Foreground="{Binding AlarmTextBrush}" VerticalAlignment="Bottom"/>
-            </StackPanel>
+                
+                <Button Content="Details..." Command="{Binding OpenDataExplorerWindowCommand}" Width="70" Margin="2" HorizontalAlignment="Right"/>
+            </DockPanel>
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>

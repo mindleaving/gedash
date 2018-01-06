@@ -28,9 +28,8 @@ namespace NetworkCommunication.DataProcessing
             foreach (var entryPointIndex in entryPointIndices)
             {
                 var sectionBytes = buffer.Skip(entryPointIndex).Take(SensorEntryLength).ToArray();
-                var sensorCodeBytes = sectionBytes.Skip(SensorIdentifierOffset).Take(SensorIdentifieryLength);
-                var sensorCode = BitConverter.ToUInt32(sensorCodeBytes.Reverse().ToArray(), 0);
-                var sensorType = Informations.MapVitalSignSenorCodeToSensorType(sensorCode);
+                var sensorCodeByte = sectionBytes[SensorIdentifierOffset+2];
+                var sensorType = Informations.MapVitalSignSenorCodeToSensorType(sensorCodeByte);
                 vitalSignValues.AddRange(ParseSensorSection(sectionBytes, sensorType));
             }
             return new VitalSignData(ipAddress, counter, vitalSignValues, timestamp);
