@@ -55,7 +55,6 @@ namespace CentralMonitorGUI.ViewModels
             IReadOnlyDictionary<SensorType, TimeSeries<short>> waveforms, 
             Range<DateTime> focusedTimeRange)
         {
-            InstructionText = "";
             PlotModel.Series.Clear();
 
             var yMax = 0;
@@ -88,6 +87,7 @@ namespace CentralMonitorGUI.ViewModels
             }
             xAxis.Zoom(DateTimeAxis.ToDouble(focusedTimeRange.From), DateTimeAxis.ToDouble(focusedTimeRange.To));
             PlotModel.InvalidatePlot(true);
+            InstructionText = "";
         }
 
         private Color GetSensorColor(SensorType sensorType)
@@ -112,6 +112,7 @@ namespace CentralMonitorGUI.ViewModels
         {
             PlotModel.Series.Clear();
             PlotModel.InvalidatePlot(true);
+            InstructionText = "Hold SHIFT and click on plot above for showing waveforms";
         }
 
         private static int GetSensorOrder(SensorType sensorType)

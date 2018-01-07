@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Commons.Mathematics;
 using Commons.Wpf;
@@ -51,25 +52,27 @@ namespace CentralMonitorGUI.ViewModels
         public VitalSignPlotViewModel VitalSignPlotViewModel { get; }
         public HistoricWaveformPlotViewModel WaveformPlotViewModel { get; }
 
-        private void LoadVitalSignDataForSelectedTimeRange()
+        private async void LoadVitalSignDataForSelectedTimeRange()
         {
             var timeRange = AvailableDataPlotViewModel.SelectedTimeRange;
             var sensorTypes = new[] {SensorType.SpO2};
             var vitalSignTypes = new[] {VitalSignType.SpO2, VitalSignType.HeartRate};
-            var vitalSignData = historyLoader.GetVitalSignDataInRange(patientInfo, timeRange, sensorTypes, vitalSignTypes);
+            var vitalSignData = await Task.Run(() => historyLoader.GetVitalSignDataInRange(patientInfo, timeRange, sensorTypes, vitalSignTypes));
             VitalSignPlotViewModel.PlotData(vitalSignData);
             WaveformPlotViewModel.ClearPlot();
         }
 
-        private void LoadWaveformsForTime(DateTime selectedTime)
+        private async void LoadWaveformsForTime(DateTime selectedTime)
         {
+            WaveformPlotViewModel.ClearPlot();
+            WaveformPlotViewModel.InstructionText = "Loading...";
             var rangeStart = selectedTime.Subtract(waveformDataExpansion);
             var rangeEnd = selectedTime.Add(waveformTimeSpan + waveformDataExpansion);
             var timeRange = new Range<DateTime>(rangeStart, rangeEnd);
             var sensorTypes = ((SensorType[]) Enum.GetValues(typeof(SensorType)))
                 .Where(Informations.IsWaveformSensorType)
                 .ToList();
-            var waveformData = historyLoader.GetWaveformDataInRange(patientInfo, timeRange, sensorTypes);
+            var waveformData = await Task.Run(() => historyLoader.GetWaveformDataInRange(patientInfo, timeRange, sensorTypes));
             var focusedRange = new Range<DateTime>(selectedTime, selectedTime + waveformTimeSpan);
             WaveformPlotViewModel.PlotWaveforms(waveformData, focusedRange);
         }
