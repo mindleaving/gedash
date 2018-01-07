@@ -41,7 +41,7 @@ namespace NetworkCommunication.DataStorage
                 if(!writers.ContainsKey(patientInfo))
                     writers.Add(patientInfo, new WaveformWriter(fileManager, append));
 
-                foreach (var sensorType in waveformData.SensorWaveforms.Keys)
+                foreach (var sensorType in waveformData.SensorWaveforms.Keys.Where(Informations.IsWaveformSensorType)) // Excludes Raw
                 {
                     var sensorValues = waveformData.SensorWaveforms[sensorType];
                     var timePerSample = Informations.SensorTypeSampleTime(sensorType);

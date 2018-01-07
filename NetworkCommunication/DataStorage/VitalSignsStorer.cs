@@ -48,6 +48,8 @@ namespace NetworkCommunication.DataStorage
 
         public void Store(VitalSignData vitalSignData)
         {
+            if(!vitalSignData.VitalSignValues.Any())
+                return;
             lock (writeLock)
             {
                 if(isDisposed)

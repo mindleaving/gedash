@@ -2,22 +2,18 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
-using System.Windows.Media;
 using Commons.Mathematics;
 using Commons.Wpf;
 using NetworkCommunication;
 using NetworkCommunication.DataStorage;
 using NetworkCommunication.Objects;
-using OxyPlot;
-using OxyPlot.Axes;
-using OxyPlot.Series;
 
 namespace CentralMonitorGUI.ViewModels
 {
     public class DataExplorerWindowViewModel
     {
         private readonly TimeSpan waveformTimeSpan = TimeSpan.FromSeconds(20);
-        private readonly TimeSpan waveformDataExpansion = TimeSpan.FromSeconds(60);
+        private readonly TimeSpan waveformDataExpansion = TimeSpan.FromSeconds(15);
         private readonly PatientInfo patientInfo;
         private readonly HistoryLoader historyLoader;
 
