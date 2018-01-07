@@ -134,7 +134,7 @@ namespace NetworkCommunication
             }
         }
 
-        public static bool IsWaveformSensorType(SensorType sensorType)
+        public static bool IsWaveformSensorType(this SensorType sensorType)
         {
             var waveformSensors = new[]
             {

@@ -50,7 +50,7 @@
     <Compile Include="Communicators\DataRequestSender.cs" />
     <Compile Include="DataProcessing\DiscoveryMessageParser.cs" />
     <Compile Include="DataStorage\AvailableDataFinder.cs" />
-    <Compile Include="DataStorage\DatedFileWriter.cs" />
+    <Compile Include="DataStorage\AutoFlushingFileWriter.cs" />
     <Compile Include="DataStorage\FileManager.cs" />
     <Compile Include="DataStorage\HistoryLoader.cs" />
     <Compile Include="DataStorage\RecordedPatientData.cs" />

@@ -13,15 +13,18 @@ namespace CentralMonitorGUI.ViewModels
         private readonly MonitorNetwork network;
         private readonly DataConnectionManager dataConnectionManager;
         private readonly UpdateTrigger updateTrigger;
+        private readonly DataExplorerWindowViewModelFactory dataExplorerWindowViewModelFactory;
 
         public MainViewModel(
             MonitorNetwork network,
             DataConnectionManager dataConnectionManager,
-            UpdateTrigger updateTrigger)
+            UpdateTrigger updateTrigger,
+            DataExplorerWindowViewModelFactory dataExplorerWindowViewModelFactory)
         {
             this.network = network;
             this.dataConnectionManager = dataConnectionManager;
             this.updateTrigger = updateTrigger;
+            this.dataExplorerWindowViewModelFactory = dataExplorerWindowViewModelFactory;
 
             network.NewMonitorDiscovered += Network_NewMonitorDiscovered;
             network.MonitorDisappeared += Network_MonitorDisappeared;
@@ -32,7 +35,8 @@ namespace CentralMonitorGUI.ViewModels
             var viewModel = new PatientMonitorViewModel(
                 newMonitor,
                 updateTrigger, 
-                timeToShow);
+                timeToShow,
+                dataExplorerWindowViewModelFactory);
             Monitors.Add(viewModel);
         }
 

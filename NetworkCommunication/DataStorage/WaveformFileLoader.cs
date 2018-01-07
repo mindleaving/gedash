@@ -22,12 +22,16 @@ namespace NetworkCommunication.DataStorage
             Range<DateTime> timeRange, 
             IReadOnlyList<SensorType> sensorTypes)
         {
-            var timeSeries = sensorTypes.ToDictionary(sensorType => sensorType, _ => new TimeSeries<short>());
+            var timeSeries = new Dictionary<SensorType, TimeSeries<short>>();
 
             foreach (var sensorType in sensorTypes)
             {
                 var waveformFile = Path.Combine(directory, fileManager.GetWaveformFileName(sensorType));
-                using (var streamReader = new StreamReader(waveformFile))
+                if(!File.Exists(waveformFile))
+                    continue;
+                timeSeries.Add(sensorType, new TimeSeries<short>());
+                using (var fileStream = new FileStream(waveformFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var streamReader = new StreamReader(fileStream))
                 {
                     var headerLine = streamReader.ReadLine();
                     if (headerLine == null)

@@ -33,6 +33,11 @@ namespace NetworkCommunication.Communicators
 
         private void Network_NewMonitorDiscovered(object sender, PatientMonitor newMonitor)
         {
+            if(cancellationTokenSources.ContainsKey(newMonitor))
+            {
+                cancellationTokenSources[newMonitor].Cancel();
+                cancellationTokenSources.Remove(newMonitor);
+            }
             var cancellationTokenSource = new CancellationTokenSource();
             cancellationTokenSources.Add(newMonitor, cancellationTokenSource);
             waveformAndVitalSignReceiver.StartReceiving(

@@ -3,10 +3,33 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:views="clr-namespace:CentralMonitorGUI.Views"
         mc:Ignorable="d"
-        Title="DataExplorerWindow" Height="300" Width="300"
+        Title="DataExplorerWindow" Height="600" Width="1000"
         Name="Self">
-    <Grid>
-        
+    <Grid DataContext="{Binding ElementName=Self, Path=ViewModel}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="100"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="0.6*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <Button Content="Update" Command="{Binding UpdateCommand}" Margin="5 2"/>
+        </StackPanel>
+
+        <views:AvailableDataPlotView Grid.Row="1" ViewModel="{Binding AvailableDataPlotViewModel}"/>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal">
+            <Button Content="Load selected range" Command="{Binding LoadDataRangeCommand}" Margin="5 2"/>
+        </StackPanel>
+
+        <views:VitalSignPlotView Grid.Row="3" ViewModel="{Binding VitalSignPlotViewModel}"/>
+        <ScrollViewer Grid.Row="4" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <views:HistoricWaveformPlotView ViewModel="{Binding WaveformPlotViewModel}"/>
+        </ScrollViewer>
     </Grid>
 </Window>

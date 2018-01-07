@@ -8,7 +8,7 @@ namespace NetworkCommunication.DataStorage
 {
     public class VitalSignsStorer : IDisposable
     {
-        private readonly Dictionary<PatientInfo, DatedFileWriter> writers = new Dictionary<PatientInfo, DatedFileWriter>();
+        private readonly Dictionary<PatientInfo, AutoFlushingFileWriter> writers = new Dictionary<PatientInfo, AutoFlushingFileWriter>();
         private readonly IMonitorDatabase monitorDatabase;
         private readonly FileManager fileManager;
         private readonly bool appendToFile;
@@ -97,7 +97,7 @@ namespace NetworkCommunication.DataStorage
             var fileName = fileManager.GetVitalSignFileName();
             var combinedFilePath = Path.Combine(dateDirectory, fileName);
             var writeHeader = !File.Exists(combinedFilePath);
-            var writer = new DatedFileWriter(dateDirectory, fileName, appendToFile);
+            var writer = new AutoFlushingFileWriter(dateDirectory, fileName, appendToFile);
             if (writeHeader)
             {
                 var header = columnIndices.OrderBy(kvp => kvp.Value)

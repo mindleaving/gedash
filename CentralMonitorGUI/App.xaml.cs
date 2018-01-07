@@ -19,7 +19,12 @@ namespace CentralMonitorGUI
         {
             var connectionLostTimeout = TimeSpan.FromSeconds(30);
             var waveformUpdateInterval = TimeSpan.FromMilliseconds(33);
+            var newRangeThreshold = TimeSpan.FromMinutes(5);
+            var appendToFile = true;
+            var directory = $@"C:\Temp";
+            var fileManager = new FileManager(directory);
 
+            var mainCancellationTokenSource = new CancellationTokenSource();
             var discoveryMessageParser = new DiscoveryMessageParser();
             var discoveryMessageReceiver = new DiscoveryMessageReceiver(discoveryMessageParser);
             var network = new MonitorNetwork(discoveryMessageReceiver, connectionLostTimeout);
@@ -32,13 +37,14 @@ namespace CentralMonitorGUI
             var alarmReceiver = new AlarmReceiver(alarmMessageParser);
             var dataConnectionManager = new DataConnectionManager(network, waveformAndVitalSignReceiver, alarmReceiver);
             var updateTrigger = new UpdateTrigger(waveformUpdateInterval);
-            var mainViewModel = new MainViewModel(network, dataConnectionManager, updateTrigger);
+            var availableDataFinder = new AvailableDataFinder(fileManager, newRangeThreshold);
+            var vitalSignFileLoader = new VitalSignFileLoader(fileManager);
+            var waveformFileLoader = new WaveformFileLoader(fileManager);
+            var historyLoader = new HistoryLoader(fileManager, availableDataFinder, vitalSignFileLoader, waveformFileLoader);
+            var dataExplorerWindowViewModelFactory = new DataExplorerWindowViewModelFactory(historyLoader);
+            var mainViewModel = new MainViewModel(network, dataConnectionManager, updateTrigger, dataExplorerWindowViewModelFactory);
             var mainWindow = new MainWindow(mainViewModel);
 
-            var appendToFile = true;
-            var directory = $@"C:\Temp";
-            var mainCancellationTokenSource = new CancellationTokenSource();
-            var fileManager = new FileManager(directory);
             using (var waveformStorer = new WaveformStorer(network, fileManager, appendToFile))
             using (var vitalSignsStorer = new VitalSignsStorer(network, fileManager, appendToFile))
             {

@@ -7,7 +7,7 @@ namespace NetworkCommunication.DataStorage
 {
     public class WaveformWriter : IDisposable
     {
-        private readonly Dictionary<SensorType, DatedFileWriter> writers = new Dictionary<SensorType, DatedFileWriter>();
+        private readonly Dictionary<SensorType, AutoFlushingFileWriter> writers = new Dictionary<SensorType, AutoFlushingFileWriter>();
         private readonly FileManager fileManager;
         private readonly bool appendToFile;
 
@@ -36,7 +36,7 @@ namespace NetworkCommunication.DataStorage
             var fileName = fileManager.GetWaveformFileName(sensorType);
             var combinedFilePath = Path.Combine(dateDirectory, fileName);
             var writeHeader = !File.Exists(combinedFilePath);
-            var fileWriter = new DatedFileWriter(dateDirectory, fileName, appendToFile);
+            var fileWriter = new AutoFlushingFileWriter(dateDirectory, fileName, appendToFile);
             writers[sensorType] = fileWriter;
             if (writeHeader)
             {

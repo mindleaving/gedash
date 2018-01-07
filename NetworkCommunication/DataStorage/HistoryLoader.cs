@@ -36,38 +36,72 @@ namespace NetworkCommunication.DataStorage
             IReadOnlyList<SensorType> sensorTypes,
             IReadOnlyList<VitalSignType> vitalSignTypes)
         {
+            var vitalParameters = GetVitalSignDataInRange(patientInfo, timeRange, sensorTypes, vitalSignTypes);
+            var waveforms = GetWaveformDataInRange(patientInfo, timeRange, sensorTypes);
+            return new RecordedPatientData(patientInfo, vitalParameters, waveforms);
+        }
+
+        public IReadOnlyDictionary<SensorVitalSignType, TimeSeries<short>> GetVitalSignDataInRange(
+            PatientInfo patientInfo,
+            Range<DateTime> timeRange,
+            IReadOnlyList<SensorType> sensorTypes,
+            IReadOnlyList<VitalSignType> vitalSignTypes)
+        {
             var patientDirectory = fileManager.GetPatientDirectory(patientInfo);
             var matchingDateDirectories = Directory.GetDirectories(patientDirectory)
                 .Where(dir => IsDateDirectoryInRange(dir, timeRange))
                 .OrderBy(dir => dir);
             var vitalParameters = new Dictionary<SensorVitalSignType, TimeSeries<short>>();
+            foreach (var dateDirectory in matchingDateDirectories)
+            {
+                try
+                {
+                    var directoryVitalParameters = vitalSignLoader.Load(dateDirectory, timeRange, sensorTypes, vitalSignTypes);
+                    foreach (var sensorVitalSignType in directoryVitalParameters.Keys)
+                    {
+                        if (!vitalParameters.ContainsKey(sensorVitalSignType))
+                            vitalParameters.Add(sensorVitalSignType, new TimeSeries<short>());
+                        var newData = directoryVitalParameters[sensorVitalSignType];
+                        vitalParameters[sensorVitalSignType].AddRange(newData);
+                    }
+                }
+                catch { }
+            }
+            return vitalParameters;
+        }
+
+        public IReadOnlyDictionary<SensorType, TimeSeries<short>> GetWaveformDataInRange(
+            PatientInfo patientInfo,
+            Range<DateTime> timeRange,
+            IReadOnlyList<SensorType> sensorTypes)
+        {
+            var patientDirectory = fileManager.GetPatientDirectory(patientInfo);
+            var matchingDateDirectories = Directory.GetDirectories(patientDirectory)
+                .Where(dir => IsDateDirectoryInRange(dir, timeRange))
+                .OrderBy(dir => dir);
             var waveforms = new Dictionary<SensorType, TimeSeries<short>>();
             foreach (var dateDirectory in matchingDateDirectories)
             {
-                var directoryVitalParameters = vitalSignLoader.Load(dateDirectory, timeRange, sensorTypes, vitalSignTypes);
-                foreach (var sensorVitalSignType in directoryVitalParameters.Keys)
+                try
                 {
-                    if(!vitalParameters.ContainsKey(sensorVitalSignType))
-                        vitalParameters.Add(sensorVitalSignType, new TimeSeries<short>());
-                    var newData = directoryVitalParameters[sensorVitalSignType];
-                    vitalParameters[sensorVitalSignType].AddRange(newData);
+                    var directoryWaveforms = waveformLoader.Load(dateDirectory, timeRange, sensorTypes);
+                    foreach (var sensorType in directoryWaveforms.Keys)
+                    {
+                        if (!waveforms.ContainsKey(sensorType))
+                            waveforms.Add(sensorType, new TimeSeries<short>());
+                        var newData = directoryWaveforms[sensorType];
+                        waveforms[sensorType].AddRange(newData);
+                    }
                 }
-
-                var directoryWaveforms = waveformLoader.Load(dateDirectory, timeRange, sensorTypes);
-                foreach (var sensorType in directoryWaveforms.Keys)
-                {
-                    if(!waveforms.ContainsKey(sensorType))
-                        waveforms.Add(sensorType, new TimeSeries<short>());
-                    var newData = directoryWaveforms[sensorType];
-                    waveforms[sensorType].AddRange(newData);
-                }
+                catch { }
             }
-            return new RecordedPatientData(patientInfo, vitalParameters, waveforms);
+            return waveforms;
         }
 
         private static bool IsDateDirectoryInRange(string directory, Range<DateTime> timeRange)
         {
-            if (!DateTime.TryParse(directory, out var directoryTime))
+            var directoryInfo = new DirectoryInfo(directory);
+            if (!DateTime.TryParse(directoryInfo.Name, out var directoryTime))
                 return false;
             var directoryTimeRange = new Range<DateTime>(directoryTime, directoryTime.AddDays(1));
             return directoryTimeRange.Overlaps(timeRange);

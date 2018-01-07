@@ -61,17 +61,31 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ViewModels\AvailableDataPlotViewModel.cs" />
+    <Compile Include="ViewModels\DataExplorerWindowViewModel.cs" />
+    <Compile Include="ViewModels\DataExplorerWindowViewModelFactory.cs" />
     <Compile Include="ViewModels\PatientMonitorViewModel.cs" />
     <Compile Include="ViewModels\UpdateTrigger.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\VitalSignPlotViewModel.cs" />
     <Compile Include="ViewModels\VitalSignViewModel.cs" />
+    <Compile Include="ViewModels\HistoricWaveformPlotViewModel.cs" />
     <Compile Include="ViewModels\WaveformViewModel.cs" />
+    <Compile Include="Views\AvailableDataPlotView.xaml.cs">
+      <DependentUpon>AvailableDataPlotView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\DataExplorerWindow.xaml.cs">
       <DependentUpon>DataExplorerWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\HistoricWaveformPlotView.xaml.cs">
+      <DependentUpon>HistoricWaveformPlotView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\PatientMonitorView.xaml.cs">
       <DependentUpon>PatientMonitorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VitalSignPlotView.xaml.cs">
+      <DependentUpon>VitalSignPlotView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VitalSignView.xaml.cs">
       <DependentUpon>VitalSignView.xaml</DependentUpon>
@@ -79,7 +93,15 @@
     <Compile Include="Views\WaveformView.xaml.cs">
       <DependentUpon>WaveformView.xaml</DependentUpon>
     </Compile>
+    <Page Include="Views\AvailableDataPlotView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\DataExplorerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\HistoricWaveformPlotView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -96,6 +118,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Views\PatientMonitorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VitalSignPlotView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

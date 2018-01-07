@@ -3,14 +3,15 @@ using System.IO;
 
 namespace NetworkCommunication.DataStorage
 {
-    public class DatedFileWriter : IDisposable
+    public class AutoFlushingFileWriter : IDisposable
     {
-        public DatedFileWriter(string directory, string fileName, bool append)
+        public AutoFlushingFileWriter(string directory, string fileName, bool append)
         {
             Directory = directory;
             FileName = fileName;
             var filePath = Path.Combine(Directory, FileName);
-            Writer = new StreamWriter(filePath, append);
+            Writer = new StreamWriter(filePath, append) { AutoFlush = true };
+
         }
 
         public string Directory { get; }
@@ -19,7 +20,6 @@ namespace NetworkCommunication.DataStorage
 
         public void Dispose()
         {
-            Writer.Flush();
             Writer.Close();
             Writer.Dispose();
         }

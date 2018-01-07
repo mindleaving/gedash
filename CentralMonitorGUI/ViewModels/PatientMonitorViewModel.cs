@@ -23,6 +23,7 @@ namespace CentralMonitorGUI.ViewModels
         private EcgLead selectedEcgLead = EcgLead.II;
         private readonly UpdateTrigger updateTrigger;
         private readonly TimeSpan timeToShow;
+        private readonly DataExplorerWindowViewModelFactory dataExplorerWindowViewModelFactory;
         private readonly Dictionary<SensorType, WaveformViewModel> waveformViewModels = new Dictionary<SensorType, WaveformViewModel>();
         private VitalSignViewModel vitalSignValues;
         private WaveformViewModel ecgWaveform;
@@ -36,16 +37,17 @@ namespace CentralMonitorGUI.ViewModels
         private Brush infoBarBackground = Brushes.LightGoldenrodYellow;
         private readonly object dataExplorerCreationLock = new object();
         private Thread dataExplorerThread;
-        private volatile bool isDataExplorerWindowOpen;
 
         public PatientMonitorViewModel(
             PatientMonitor monitor, 
             UpdateTrigger updateTrigger, 
-            TimeSpan timeToShow)
+            TimeSpan timeToShow,
+            DataExplorerWindowViewModelFactory dataExplorerWindowViewModelFactory)
         {
             Monitor = monitor;
             this.updateTrigger = updateTrigger;
             this.timeToShow = timeToShow;
+            this.dataExplorerWindowViewModelFactory = dataExplorerWindowViewModelFactory;
 
             VitalSignValues = new VitalSignViewModel(monitor);
             OpenDataExplorerWindowCommand = new RelayCommand(OpenDataExplorerWindow);
@@ -306,7 +308,7 @@ namespace CentralMonitorGUI.ViewModels
                 }
                 dataExplorerThread?.Abort();
                 dataExplorerThread?.Join();
-                dataExplorerThread = new Thread(CreateDataExplorerWindow);
+                dataExplorerThread = new Thread(() => CreateDataExplorerWindow(Monitor.PatientInfo));
                 dataExplorerThread.SetApartmentState(ApartmentState.STA);
                 dataExplorerThread.IsBackground = true;
                 dataExplorerThread.Start();
@@ -317,12 +319,13 @@ namespace CentralMonitorGUI.ViewModels
             }
         }
 
-        private void CreateDataExplorerWindow()
+        private void CreateDataExplorerWindow(PatientInfo patientInfo)
         {
             SynchronizationContext.SetSynchronizationContext(
                 new DispatcherSynchronizationContext(Dispatcher.CurrentDispatcher));
 
-            var dataExplorerWindow = new DataExplorerWindow();
+            var dataExplorerViewModel = dataExplorerWindowViewModelFactory.Create(patientInfo);
+            var dataExplorerWindow = new DataExplorerWindow(dataExplorerViewModel);
             dataExplorerWindow.Closed += (sender, args) =>
                 Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Background);
             dataExplorerWindow.Show();

@@ -25,7 +25,8 @@ namespace NetworkCommunication.DataStorage
             var timeSeries = new Dictionary<SensorVitalSignType, TimeSeries<short>>();
             var sensorTypeHashSet = new HashSet<SensorType>(sensorTypes);
             var vitalSignTypeHashSet = new HashSet<VitalSignType>(vitalSignTypes);
-            using (var streamReader = new StreamReader(vitalSignFile))
+            using (var fileStream = new FileStream(vitalSignFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var streamReader = new StreamReader(fileStream))
             {
                 var headerLine = streamReader.ReadLine();
                 if (headerLine == null)
@@ -52,7 +53,7 @@ namespace NetworkCommunication.DataStorage
                             continue;
 
                         var valueString = splittedLine[columnIdx];
-                        if(short.TryParse(valueString, out var value))
+                        if(!short.TryParse(valueString, out var value))
                             continue;
                         var timePoint = new TimePoint<short>(timestamp, value);
                         if(!timeSeries.ContainsKey(senorVitalSignKey))
