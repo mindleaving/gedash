@@ -21,7 +21,7 @@ namespace CentralMonitorGUI
             var waveformUpdateInterval = TimeSpan.FromMilliseconds(33);
             var newRangeThreshold = TimeSpan.FromMinutes(5);
             var appendToFile = true;
-            var directory = $@"C:\Temp";
+            var directory = $@"C:\Users\Jan\Documents\GEDashData";
             var fileManager = new FileManager(directory);
 
             var mainCancellationTokenSource = new CancellationTokenSource();

@@ -49,6 +49,8 @@ namespace NetworkCommunication.DataStorage
                     for (var valueIdx = 0; valueIdx < sensorValues.Count; valueIdx++)
                     {
                         var sensorValue = sensorValues[valueIdx];
+                        if(Math.Abs(sensorValue) > 10000)
+                            continue;
                         var time = secondsSince1990 + valueIdx * timePerSample.TotalSeconds;
                         var timeString = time.ToString("F3", CultureInfo.InvariantCulture);
                         var line = $"{timeString}{FileManager.Delimiter}{sensorValue}";

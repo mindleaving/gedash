@@ -55,8 +55,8 @@ namespace CentralMonitorGUI.ViewModels
         private async void LoadVitalSignDataForSelectedTimeRange()
         {
             var timeRange = AvailableDataPlotViewModel.SelectedTimeRange;
-            var sensorTypes = new[] {SensorType.SpO2};
-            var vitalSignTypes = new[] {VitalSignType.SpO2, VitalSignType.HeartRate};
+            var sensorTypes = new[] {SensorType.SpO2, SensorType.Ecg, SensorType.BloodPressure, SensorType.Respiration }; // TODO
+            var vitalSignTypes = new[] {VitalSignType.SpO2, VitalSignType.HeartRate, VitalSignType.RespirationRate };
             var vitalSignData = await Task.Run(() => historyLoader.GetVitalSignDataInRange(patientInfo, timeRange, sensorTypes, vitalSignTypes));
             VitalSignPlotViewModel.PlotData(vitalSignData);
             WaveformPlotViewModel.ClearPlot();

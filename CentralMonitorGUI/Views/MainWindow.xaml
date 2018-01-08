@@ -17,6 +17,9 @@
             <MenuItem Header="_File">
                 <MenuItem Header="_Exit"/>
             </MenuItem>
+            <MenuItem Header="_History">
+                <MenuItem Header="_Open patient database" Command="{Binding OpenPatientDatabaseCommand}"/>
+            </MenuItem>
         </Menu>
 
         <ItemsControl Grid.Row="1" ItemsSource="{Binding Monitors}">

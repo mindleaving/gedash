@@ -14,13 +14,16 @@ namespace CentralMonitorGUI.ViewModels
     public class HistoricWaveformPlotViewModel : ViewModelBase
     {
         private readonly int seriesSeparation = 0;
-        private readonly DateTimeAxis xAxis;
+        private readonly Axis xAxis;
         private readonly Axis yAxis;
         private string instructionText = "Hold SHIFT and click on plot above for showing waveforms";
 
         public HistoricWaveformPlotViewModel()
         {
-            xAxis = new DateTimeAxis();
+            xAxis = new LinearAxis
+            {
+                Position = AxisPosition.Bottom
+            };
             yAxis = new LinearAxis
             {
                 Position = AxisPosition.Left,
@@ -57,7 +60,7 @@ namespace CentralMonitorGUI.ViewModels
         {
             PlotModel.Series.Clear();
 
-            var yMax = 0;
+            var yOffset = 0;
             foreach (var kvp in waveforms.OrderBy(kvp => GetSensorOrder(kvp.Key)))
             {
                 var sensorType = kvp.Key;
@@ -78,14 +81,16 @@ namespace CentralMonitorGUI.ViewModels
                 };
                 foreach (var timePoint in timeSeries)
                 {
-                    series.Points.Add(DateTimeAxis.CreateDataPoint(timePoint.Time, timePoint.Value-sensorMinValue));
+                    var x = (timePoint.Time - focusedTimeRange.From).TotalSeconds;
+                    var y = yOffset + timePoint.Value - sensorMinValue;
+                    series.Points.Add(new DataPoint(x, y));
                 }
                 PlotModel.Series.Add(series);
 
-                yMax += sensorYSpan;
-                yMax += seriesSeparation;
+                yOffset += sensorYSpan;
+                yOffset += seriesSeparation;
             }
-            xAxis.Zoom(DateTimeAxis.ToDouble(focusedTimeRange.From), DateTimeAxis.ToDouble(focusedTimeRange.To));
+            xAxis.Zoom(0, (focusedTimeRange.To - focusedTimeRange.From).TotalSeconds);
             PlotModel.InvalidatePlot(true);
             InstructionText = "";
         }
