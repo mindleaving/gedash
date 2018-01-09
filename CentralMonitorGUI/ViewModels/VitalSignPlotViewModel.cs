@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Media;
+using Commons.Mathematics;
 using NetworkCommunication.DataStorage;
 using NetworkCommunication.Objects;
 using OxyPlot;
+using OxyPlot.Annotations;
 using OxyPlot.Axes;
 using OxyPlot.Series;
 using Series = OxyPlot.Wpf.Series;
@@ -47,7 +50,9 @@ namespace CentralMonitorGUI.ViewModels
             }
         }
 
-        public void PlotData(IReadOnlyDictionary<SensorVitalSignType, TimeSeries<short>> vitalSignData)
+        public void PlotData(
+            IReadOnlyDictionary<SensorVitalSignType, TimeSeries<short>> vitalSignData,
+            Range<DateTime> focusedTimeRange)
         {
             PlotModel.Series.Clear();
             PlotModel.Axes.Clear();
@@ -70,6 +75,7 @@ namespace CentralMonitorGUI.ViewModels
                 series.MouseDown += Series_MouseDown;
                 PlotModel.Series.Add(series);
             }
+            xAxis.Zoom(DateTimeAxis.ToDouble(focusedTimeRange.From), DateTimeAxis.ToDouble(focusedTimeRange.To));
             PlotModel.InvalidatePlot(true);
         }
 
@@ -83,6 +89,17 @@ namespace CentralMonitorGUI.ViewModels
                 throw new Exception($"Event handler for series was hooked up to {sender.GetType()}");
             var plotPoint = ((LineSeries)sender).InverseTransform(e.Position);
             SelectedTime = DateTimeAxis.ToDateTime(plotPoint.X);
+            PlotModel.Annotations.Clear();
+            PlotModel.Annotations.Add(new LineAnnotation
+            {
+                Text = $"{SelectedTime:HH:mm:ss}",
+                FontSize = 14,
+                X = plotPoint.X,
+                Type = LineAnnotationType.Vertical,
+                Color = OxyColor.FromRgb(Colors.Red.R, Colors.Red.G, Colors.Red.B),
+                StrokeThickness = 3,
+            });
+            PlotModel.InvalidatePlot(false);
         }
 
         private IEnumerable<DataPoint> ConvertTimeSeriesToPointList(TimeSeries<short> timeSeries)

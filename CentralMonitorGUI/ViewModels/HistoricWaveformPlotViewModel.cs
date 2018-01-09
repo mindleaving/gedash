@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
+using Commons.Extensions;
 using Commons.Mathematics;
 using NetworkCommunication.DataStorage;
 using NetworkCommunication.Objects;
 using OxyPlot;
+using OxyPlot.Annotations;
 using OxyPlot.Axes;
 using OxyPlot.Series;
 
@@ -17,6 +19,8 @@ namespace CentralMonitorGUI.ViewModels
         private readonly Axis xAxis;
         private readonly Axis yAxis;
         private string instructionText = "Hold SHIFT and click on plot above for showing waveforms";
+        private DataPoint measuringStartPoint = DataPoint.Undefined;
+        private DataPoint measuringEndPoint = DataPoint.Undefined;
 
         public HistoricWaveformPlotViewModel()
         {
@@ -54,11 +58,24 @@ namespace CentralMonitorGUI.ViewModels
             }
         }
 
+        private string measurementText = "";
+        public string MeasurementText
+        {
+            get { return measurementText; }
+            set
+            {
+                measurementText = value;
+                OnPropertyChanged();
+            }
+        }
+        public string MeasurementInstructionText { get; } = "Hold SHIFT for selecting start position and CTRL to select end position";
+
         public void PlotWaveforms(
             IReadOnlyDictionary<SensorType, TimeSeries<short>> waveforms, 
             Range<DateTime> focusedTimeRange)
         {
             PlotModel.Series.Clear();
+            PlotModel.Annotations.Clear();
 
             var yOffset = 0;
             foreach (var kvp in waveforms.OrderBy(kvp => GetSensorOrder(kvp.Key)))
@@ -82,17 +99,63 @@ namespace CentralMonitorGUI.ViewModels
                 foreach (var timePoint in timeSeries)
                 {
                     var x = (timePoint.Time - focusedTimeRange.From).TotalSeconds;
-                    var y = yOffset + timePoint.Value - sensorMinValue;
+                    var y = yOffset + timePoint.Value - sensorMaxValue;
                     series.Points.Add(new DataPoint(x, y));
                 }
                 PlotModel.Series.Add(series);
+                series.MouseDown += Series_MouseDown;
 
-                yOffset += sensorYSpan;
-                yOffset += seriesSeparation;
+                yOffset -= sensorYSpan;
+                yOffset -= seriesSeparation;
             }
             xAxis.Zoom(0, (focusedTimeRange.To - focusedTimeRange.From).TotalSeconds);
             PlotModel.InvalidatePlot(true);
             InstructionText = "";
+        }
+
+        private void Series_MouseDown(object sender, OxyMouseDownEventArgs e)
+        {
+            if(!(sender is LineSeries))
+                return;
+            if(!e.IsShiftDown && !e.IsControlDown)
+                return;
+            var series = (LineSeries) sender;
+            var plotPosition = series.InverseTransform(e.Position);
+            if (e.IsShiftDown)
+                measuringStartPoint = plotPosition;
+            else if (e.IsControlDown)
+                measuringEndPoint = plotPosition;
+
+            PlotModel.Annotations.Clear();
+            if (measuringStartPoint.IsDefined())
+            {
+                PlotModel.Annotations.Add(new LineAnnotation
+                {
+                    X = measuringStartPoint.X,
+                    Type = LineAnnotationType.Vertical,
+                    Color = OxyColor.FromRgb(Colors.Red.R, Colors.Red.G, Colors.Red.B),
+                    StrokeThickness = 2,
+                });
+            }
+            if (measuringEndPoint.IsDefined())
+            {
+                PlotModel.Annotations.Add(new LineAnnotation
+                {
+                    X = measuringEndPoint.X,
+                    Type = LineAnnotationType.Vertical,
+                    Color = OxyColor.FromRgb(Colors.Red.R, Colors.Red.G, Colors.Red.B),
+                    StrokeThickness = 2,
+                });
+            }
+            PlotModel.InvalidatePlot(false);
+
+            if (measuringStartPoint.IsDefined() && measuringEndPoint.IsDefined())
+            {
+                var deltaX = (measuringEndPoint.X - measuringStartPoint.X).Abs();
+                var deltaY = (measuringEndPoint.Y - measuringStartPoint.Y).Abs();
+                var frequencyPerMinute = 60 / deltaX;
+                MeasurementText = $"Time: {deltaX:F3} s,   Y: {deltaY:F0},   Frequency: {frequencyPerMinute:F0} per minute";
+            }
         }
 
         private Color GetSensorColor(SensorType sensorType)
