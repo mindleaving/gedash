@@ -57,6 +57,8 @@ namespace NetworkCommunication.DataStorage
                         lines.Add(line);
                     }
 
+                    if (!lines.Any())
+                        continue;
                     var writer = writers[patientInfo].GetWriter(sensorType, dateDirectory);
                     writer.WriteLine(lines.Aggregate((a,b) => a + Environment.NewLine + b));
                 }

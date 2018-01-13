@@ -39,7 +39,7 @@ namespace NetworkCommunication.DataStorage
             while (startPosition < endPosition)
             {
                 var lineWithPosition = GetNextFullLineAfterPosition(stream, currentPosition);
-                if (lineWithPosition.Line == null)
+                if (string.IsNullOrEmpty(lineWithPosition.Line))
                 {
                     endPosition = currentPosition-minimumLineLength;
                     currentPosition = (startPosition + endPosition) / 2;
@@ -112,7 +112,7 @@ namespace NetworkCommunication.DataStorage
                 newPosition++;
                 stream.Seek(newPosition, SeekOrigin.Begin);
                 discardedLine = reader.ReadLine();
-            } while (string.IsNullOrEmpty(discardedLine));
+            } while (string.IsNullOrEmpty(discardedLine) && newPosition+1 < stream.Length);
             var fullLine = discardedLine;
             return new LineWithPosition(fullLine, newPosition);
         }
