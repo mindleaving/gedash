@@ -55,8 +55,6 @@
     <Compile Include="DataStorage\FileManager.cs" />
     <Compile Include="DataStorage\HistoryLoader.cs" />
     <Compile Include="DataStorage\RecordedPatientData.cs" />
-    <Compile Include="DataStorage\TimePoint.cs" />
-    <Compile Include="DataStorage\TimeSeries.cs" />
     <Compile Include="DataStorage\TimestampedLineComparer.cs" />
     <Compile Include="DataStorage\TimestampedLineParser.cs" />
     <Compile Include="DataStorage\ValueColumnComparer.cs" />

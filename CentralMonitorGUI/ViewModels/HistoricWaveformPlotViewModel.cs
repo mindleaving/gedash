@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Media;
 using Commons.Extensions;
 using Commons.Mathematics;
+using Commons.Physics;
 using NetworkCommunication.DataStorage;
 using NetworkCommunication.Objects;
 using OxyPlot;
