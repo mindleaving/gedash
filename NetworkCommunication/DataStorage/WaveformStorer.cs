@@ -8,7 +8,7 @@ namespace NetworkCommunication.DataStorage
 {
     public class WaveformStorer : IDisposable
     {
-        private readonly Dictionary<PatientInfo, WaveformWriter> writers = new Dictionary<PatientInfo, WaveformWriter>();
+        private readonly Dictionary<PatientInfo, PatientWaveformWriterCollection> writers = new Dictionary<PatientInfo, PatientWaveformWriterCollection>();
         private readonly IMonitorDatabase monitorDatabase;
         private readonly FileManager fileManager;
         private readonly bool append;
@@ -25,33 +25,37 @@ namespace NetworkCommunication.DataStorage
             this.append = append;
         }
 
-        public void Store(WaveformData waveformData)
+        public void Store(WaveformCollection waveformCollection)
         {
             lock (writeLock)
             {
                 if(isDisposed)
                     return;
-                var timestamp = waveformData.Timestamp;
-                var secondsSince1990 = SecondsSince1990(timestamp);
-                if(!monitorDatabase.Monitors.ContainsKey(waveformData.IPAddress))
+                if(!monitorDatabase.Monitors.ContainsKey(waveformCollection.IPAddress))
                     return;
-                var monitor = monitorDatabase.Monitors[waveformData.IPAddress];
+                var monitor = monitorDatabase.Monitors[waveformCollection.IPAddress];
                 var patientInfo = monitor.PatientInfo;
-                var dateDirectory = fileManager.GetDatedPatientDirectory(timestamp, monitor.PatientInfo);
                 if(!writers.ContainsKey(patientInfo))
-                    writers.Add(patientInfo, new WaveformWriter(fileManager, append));
+                    writers.Add(patientInfo, new PatientWaveformWriterCollection(fileManager, append));
+                var timestamp = waveformCollection.Timestamp;
+                var lastTimestamp = writers[patientInfo].LastMessageTime;
+                var timeSinceLastPackage = lastTimestamp == DateTime.MinValue
+                    ? TimeSpan.FromSeconds(1.0 / 4)
+                    : timestamp - lastTimestamp;
+                var secondsSince1990 =  SecondsSince1990(timestamp - timeSinceLastPackage);
+                var dateDirectory = fileManager.GetDatedPatientDirectory(timestamp, monitor.PatientInfo);
 
-                foreach (var sensorType in waveformData.SensorWaveforms.Keys.Where(Informations.IsWaveformSensorType)) // Excludes Raw
+                foreach (var sensorType in waveformCollection.SensorWaveforms.Keys.Where(Informations.IsWaveformSensorType)) // Excludes Raw
                 {
-                    var sensorValues = waveformData.SensorWaveforms[sensorType];
-                    var timePerSample = Informations.SensorTypeSampleTime(sensorType);
+                    var sensorValues = waveformCollection.SensorWaveforms[sensorType];
+                    var timePerSampleInSeconds = timeSinceLastPackage.TotalSeconds / sensorValues.Count;
                     var lines = new List<string>();
                     for (var valueIdx = 0; valueIdx < sensorValues.Count; valueIdx++)
                     {
                         var sensorValue = sensorValues[valueIdx];
                         if(Math.Abs(sensorValue) > 10000)
                             continue;
-                        var time = secondsSince1990 + valueIdx * timePerSample.TotalSeconds;
+                        var time = secondsSince1990 + valueIdx * timePerSampleInSeconds;
                         var timeString = time.ToString("F3", CultureInfo.InvariantCulture);
                         var line = $"{timeString}{FileManager.Delimiter}{sensorValue}";
                         lines.Add(line);
@@ -62,6 +66,7 @@ namespace NetworkCommunication.DataStorage
                     var writer = writers[patientInfo].GetWriter(sensorType, dateDirectory);
                     writer.WriteLine(lines.Aggregate((a,b) => a + Environment.NewLine + b));
                 }
+                writers[patientInfo].LastMessageTime = timestamp;
             }
         }
 

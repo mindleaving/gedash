@@ -24,7 +24,7 @@ namespace NetworkCommunication.Communicators
             this.waveformPacketParser = waveformPacketParser;
         }
 
-        public event EventHandler<WaveformData> NewWaveformData;
+        public event EventHandler<WaveformCollection> NewWaveformData;
         public event EventHandler<VitalSignData> NewVitalSignData;
 
         public async void StartReceiving(

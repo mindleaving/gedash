@@ -5,17 +5,19 @@ using NetworkCommunication.Objects;
 
 namespace NetworkCommunication.DataStorage
 {
-    public class WaveformWriter : IDisposable
+    public class PatientWaveformWriterCollection : IDisposable
     {
         private readonly Dictionary<SensorType, AutoFlushingFileWriter> writers = new Dictionary<SensorType, AutoFlushingFileWriter>();
         private readonly FileManager fileManager;
         private readonly bool appendToFile;
 
-        public WaveformWriter(FileManager fileManager, bool appendToFile)
+        public PatientWaveformWriterCollection(FileManager fileManager, bool appendToFile)
         {
             this.fileManager = fileManager;
             this.appendToFile = appendToFile;
         }
+
+        public DateTime LastMessageTime { get; set; } = DateTime.MinValue;
 
         public TextWriter GetWriter(SensorType sensorType, string directory)
         {

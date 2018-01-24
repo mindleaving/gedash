@@ -39,13 +39,13 @@ namespace NetworkCommunication.Objects
             set { vitalSignValues = value ?? new List<VitalSignValue>(); }
         }
 
-        public void AddWaveformData(WaveformData waveformData)
+        public void AddWaveformData(WaveformCollection waveformCollection)
         {
-            foreach (var sensorType in waveformData.SensorWaveforms.Keys)
+            foreach (var sensorType in waveformCollection.SensorWaveforms.Keys)
             {
                 if(!Informations.IsWaveformSensorType(sensorType))
                     continue;
-                var waveformValues = waveformData.SensorWaveforms[sensorType];
+                var waveformValues = waveformCollection.SensorWaveforms[sensorType];
                 if(!WaveformSources.ContainsKey(sensorType))
                 {
                     var samplesPerSecond = Informations.SensorBatchesPerSecond * Informations.SensorBatchSizes[sensorType];

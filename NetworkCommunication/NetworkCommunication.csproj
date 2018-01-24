@@ -62,7 +62,7 @@
     <Compile Include="DataStorage\WaveformBuffer.cs" />
     <Compile Include="DataStorage\WaveformFileLoader.cs" />
     <Compile Include="DataStorage\WaveformFileTimeValueParser.cs" />
-    <Compile Include="DataStorage\WaveformWriter.cs" />
+    <Compile Include="DataStorage\PatientWaveformWriterCollection.cs" />
     <Compile Include="Objects\Alarm.cs" />
     <Compile Include="Objects\DataRequestType.cs" />
     <Compile Include="DataProcessing\DiscoveryMessageGenerator.cs" />
@@ -99,7 +99,7 @@
     <Compile Include="Objects\VitalSignType.cs" />
     <Compile Include="Objects\VitalSignValue.cs" />
     <Compile Include="Objects\Waveform.cs" />
-    <Compile Include="Objects\WaveformData.cs" />
+    <Compile Include="Objects\WaveformCollection.cs" />
     <Compile Include="Objects\VitalSignData.cs" />
     <Compile Include="DataProcessing\WaveformMessageBuilder.cs" />
     <Compile Include="DataProcessing\WaveformPacketParser.cs" />

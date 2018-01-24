@@ -8,7 +8,7 @@ namespace NetworkCommunication.DataProcessing
 {
     public class WaveformPacketParser
     {
-        public WaveformData Parse(byte[] data, 
+        public WaveformCollection Parse(byte[] data, 
             IPAddress ipAddress,
             DateTime timestamp)
         {
@@ -38,7 +38,7 @@ namespace NetworkCommunication.DataProcessing
             }
             if(shortValues[valueIdx] > 0)
                 waveforms.Add(SensorType.Undefined, shortValues.Skip(valueIdx).ToList());
-            return new WaveformData(ipAddress, timestamp, sequenceNumber, waveforms);
+            return new WaveformCollection(ipAddress, timestamp, sequenceNumber, waveforms);
         }
     }
 }

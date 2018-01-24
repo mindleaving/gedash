@@ -60,12 +60,12 @@ namespace NetworkCommunication.Communicators
             monitor.VitalSignValues = vitalSignData.VitalSignValues;
         }
 
-        private void NewWaveformDataReceived(object sender, WaveformData waveformData)
+        private void NewWaveformDataReceived(object sender, WaveformCollection waveformCollection)
         {
-            if (!network.Monitors.ContainsKey(waveformData.IPAddress))
+            if (!network.Monitors.ContainsKey(waveformCollection.IPAddress))
                 return;
-            var monitor = network.Monitors[waveformData.IPAddress];
-            monitor.AddWaveformData(waveformData);
+            var monitor = network.Monitors[waveformCollection.IPAddress];
+            monitor.AddWaveformData(waveformCollection);
         }
 
         private void AlarmReceiver_NewAlarmReceived(object sender, Alarm alarm)

@@ -4,14 +4,14 @@ using System.Net;
 
 namespace NetworkCommunication.Objects
 {
-    public class WaveformData
+    public class WaveformCollection
     {
         public IPAddress IPAddress { get; }
         public int SequenceNumber { get; }
         public DateTime Timestamp { get; }
         public Dictionary<SensorType, List<short>> SensorWaveforms { get; }
 
-        public WaveformData(
+        public WaveformCollection(
             IPAddress ipAddress,
             DateTime timestamp,
             int sequenceNumber, 
