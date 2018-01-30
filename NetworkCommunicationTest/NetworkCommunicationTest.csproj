@@ -47,11 +47,16 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VitalSignPacketParserTest.cs" />
     <Compile Include="VitalSignsMessageBuilderTest.cs" />
+    <Compile Include="WaveformTimestampCorrection.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Commons\Commons.csproj">
+      <Project>{D0E6B038-C939-487D-BB5E-A6270A0D18F5}</Project>
+      <Name>Commons</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NetworkCommunication\NetworkCommunication.csproj">
       <Project>{603AFCC1-DF38-4864-864B-0F604478963D}</Project>
       <Name>NetworkCommunication</Name>
