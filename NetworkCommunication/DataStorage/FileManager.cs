@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Commons.Extensions;
 using NetworkCommunication.Objects;
 
 namespace NetworkCommunication.DataStorage
@@ -43,7 +46,23 @@ namespace NetworkCommunication.DataStorage
         {
             return Path.Combine(
                 baseDirectory,
-                $"{patientInfo.LastName}_{patientInfo.FirstName}");
+                $"{patientInfo.LastName.ToUpperInvariant()}_{patientInfo.FirstName.ToUpperInvariant()}");
+        }
+
+        public IList<PatientInfo> GetAllPatients()
+        {
+            var directories = Directory.GetDirectories(baseDirectory)
+                .Select(directory => new DirectoryInfo(directory).Name);
+            var patients = new List<PatientInfo>();
+            foreach (var directory in directories)
+            {
+                var splittedName = directory.Split('_');
+                var lastName = splittedName[0].FirstLetterToUpperInvariant();
+                var firstName = splittedName.Length > 1 ? splittedName[1].FirstLetterToUpperInvariant() : "";
+                patients.Add(new PatientInfo(firstName, lastName));
+            }
+
+            return patients;
         }
     }
 }

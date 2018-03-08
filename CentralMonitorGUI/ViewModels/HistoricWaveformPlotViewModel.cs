@@ -5,7 +5,6 @@ using System.Windows.Media;
 using Commons.Extensions;
 using Commons.Mathematics;
 using Commons.Physics;
-using NetworkCommunication.DataStorage;
 using NetworkCommunication.Objects;
 using OxyPlot;
 using OxyPlot.Annotations;
@@ -16,15 +15,18 @@ namespace CentralMonitorGUI.ViewModels
 {
     public class HistoricWaveformPlotViewModel : ViewModelBase
     {
+        private readonly SelectedTime selectedTime;
         private readonly int seriesSeparation = 0;
         private readonly Axis xAxis;
         private readonly Axis yAxis;
         private string instructionText = "Hold SHIFT and click on plot above for showing waveforms";
         private DataPoint measuringStartPoint = DataPoint.Undefined;
         private DataPoint measuringEndPoint = DataPoint.Undefined;
+        private Range<DateTime> focusedTimeRange;
 
-        public HistoricWaveformPlotViewModel()
+        public HistoricWaveformPlotViewModel(SelectedTime selectedTime)
         {
+            this.selectedTime = selectedTime;
             xAxis = new LinearAxis
             {
                 Position = AxisPosition.Bottom
@@ -69,12 +71,14 @@ namespace CentralMonitorGUI.ViewModels
                 OnPropertyChanged();
             }
         }
+
         public string MeasurementInstructionText { get; } = "Hold SHIFT for selecting start position and CTRL to select end position";
 
         public void PlotWaveforms(
             IReadOnlyDictionary<SensorType, TimeSeries<short>> waveforms, 
             Range<DateTime> focusedTimeRange)
         {
+            this.focusedTimeRange = focusedTimeRange;
             PlotModel.Series.Clear();
             PlotModel.Annotations.Clear();
 
@@ -126,6 +130,7 @@ namespace CentralMonitorGUI.ViewModels
                 measuringStartPoint = plotPosition;
             else if (e.IsControlDown)
                 measuringEndPoint = plotPosition;
+            SetSelectedTime(focusedTimeRange.From.AddSeconds(plotPosition.X));
 
             PlotModel.Annotations.Clear();
             if (measuringStartPoint.IsDefined())
@@ -157,6 +162,12 @@ namespace CentralMonitorGUI.ViewModels
                 var frequencyPerMinute = 60 / deltaX;
                 MeasurementText = $"Time: {deltaX:F3} s,   Y: {deltaY:F0},   Frequency: {frequencyPerMinute:F0} per minute";
             }
+        }
+
+        private void SetSelectedTime(DateTime timestamp)
+        {
+            selectedTime.Time = timestamp;
+            selectedTime.Source = AnnotationType.Waveforms;
         }
 
         private Color GetSensorColor(SensorType sensorType)

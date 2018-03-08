@@ -4,13 +4,11 @@ using System.Linq;
 using System.Windows.Media;
 using Commons.Mathematics;
 using Commons.Physics;
-using NetworkCommunication.DataStorage;
 using NetworkCommunication.Objects;
 using OxyPlot;
 using OxyPlot.Annotations;
 using OxyPlot.Axes;
 using OxyPlot.Series;
-using Series = OxyPlot.Wpf.Series;
 
 namespace CentralMonitorGUI.ViewModels
 {
@@ -19,9 +17,11 @@ namespace CentralMonitorGUI.ViewModels
         private readonly DateTimeAxis xAxis;
         private readonly Dictionary<VitalSignType, Axis> vitalSignTypeAxes;
         private DateTime selectedTime;
+        private readonly SelectedTime globalSelectedTime;
 
-        public VitalSignPlotViewModel()
+        public VitalSignPlotViewModel(SelectedTime selectedTime)
         {
+            globalSelectedTime = selectedTime;
             xAxis = new DateTimeAxis();
             vitalSignTypeAxes = CreateVitalSignTypeAxes();
 
@@ -47,6 +47,8 @@ namespace CentralMonitorGUI.ViewModels
             private set
             {
                 selectedTime = value;
+                globalSelectedTime.Time = selectedTime;
+                globalSelectedTime.Source = AnnotationType.VitalSigns;
                 OnPropertyChanged();
             }
         }

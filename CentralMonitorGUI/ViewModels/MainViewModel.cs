@@ -7,7 +7,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using CentralMonitorGUI.Views;
 using Commons.Wpf;
-using NetworkCommunication.Communicators;
+using NetworkCommunication.DataStorage;
 using NetworkCommunication.Objects;
 
 namespace CentralMonitorGUI.ViewModels
@@ -15,20 +15,18 @@ namespace CentralMonitorGUI.ViewModels
     public class MainViewModel : ViewModelBase
     {
         private readonly TimeSpan timeToShow = TimeSpan.FromSeconds(10);
-        private readonly MonitorNetwork network;
-        private readonly DataConnectionManager dataConnectionManager;
         private readonly UpdateTrigger updateTrigger;
+        private readonly FileManager fileManager;
         private readonly DataExplorerWindowViewModelFactory dataExplorerWindowViewModelFactory;
 
         public MainViewModel(
             MonitorNetwork network,
-            DataConnectionManager dataConnectionManager,
             UpdateTrigger updateTrigger,
+            FileManager fileManager,
             DataExplorerWindowViewModelFactory dataExplorerWindowViewModelFactory)
         {
-            this.network = network;
-            this.dataConnectionManager = dataConnectionManager;
             this.updateTrigger = updateTrigger;
+            this.fileManager = fileManager;
             this.dataExplorerWindowViewModelFactory = dataExplorerWindowViewModelFactory;
 
             OpenPatientDatabaseCommand = new RelayCommand(OpenPatientDatabase);
@@ -62,50 +60,50 @@ namespace CentralMonitorGUI.ViewModels
 
         private void OpenPatientDatabase()
         {
-            OpenDataExplorerWindow(new PatientInfo("J", "SCHOLTYSSEK"));
+            OpenDataExplorerWindow();
         }
 
-        private Thread dataExplorerThread;
+        private Thread databaseWindowThread;
         private readonly object dataExplorerCreationLock = new object();
-        private void OpenDataExplorerWindow(PatientInfo patientInfo)
+        private void OpenDataExplorerWindow()
         {
-            if (dataExplorerThread != null
-                && dataExplorerThread.IsAlive)
+            if (databaseWindowThread != null
+                && databaseWindowThread.IsAlive)
             {
                 //dataExplorerWindow?.Activate();
                 return;
             }
             lock (dataExplorerCreationLock)
             {
-                if (dataExplorerThread != null
-                    && dataExplorerThread.IsAlive)
+                if (databaseWindowThread != null
+                    && databaseWindowThread.IsAlive)
                 {
                     //dataExplorerWindow?.Activate();
                     return;
                 }
-                dataExplorerThread?.Abort();
-                dataExplorerThread?.Join();
-                dataExplorerThread = new Thread(() => CreateDataExplorerWindow(patientInfo));
-                dataExplorerThread.SetApartmentState(ApartmentState.STA);
-                dataExplorerThread.IsBackground = true;
-                dataExplorerThread.Start();
-                while (!dataExplorerThread.IsAlive)
+                databaseWindowThread?.Abort();
+                databaseWindowThread?.Join();
+                databaseWindowThread = new Thread(CreateDatabaseWindow);
+                databaseWindowThread.SetApartmentState(ApartmentState.STA);
+                databaseWindowThread.IsBackground = true;
+                databaseWindowThread.Start();
+                while (!databaseWindowThread.IsAlive)
                 {
                     Thread.Sleep(10);
                 }
             }
         }
 
-        private void CreateDataExplorerWindow(PatientInfo patientInfo)
+        private void CreateDatabaseWindow()
         {
             SynchronizationContext.SetSynchronizationContext(
                 new DispatcherSynchronizationContext(Dispatcher.CurrentDispatcher));
 
-            var dataExplorerViewModel = dataExplorerWindowViewModelFactory.Create(patientInfo);
-            var dataExplorerWindow = new DataExplorerWindow(dataExplorerViewModel);
-            dataExplorerWindow.Closed += (sender, args) =>
+            var patientDatabaseViewModel = new PatientDatabaseViewModel(fileManager, dataExplorerWindowViewModelFactory);
+            var patientDatabaseWindow = new PatientDatabaseWindow(patientDatabaseViewModel);
+            patientDatabaseWindow.Closed += (sender, args) =>
                 Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Background);
-            dataExplorerWindow.Show();
+            patientDatabaseWindow.Show();
             Dispatcher.Run();
         }
     }

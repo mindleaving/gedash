@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CentralMonitorGUI.Views;
 using Commons.Mathematics;
 using Commons.Wpf;
 using NetworkCommunication;
@@ -25,13 +26,15 @@ namespace CentralMonitorGUI.ViewModels
             this.patientInfo = patientInfo;
             this.historyLoader = historyLoader;
 
+            SelectedTime = new SelectedTime();
             AvailableDataPlotViewModel = new AvailableDataPlotViewModel(patientInfo, historyLoader);
-            VitalSignPlotViewModel = new VitalSignPlotViewModel();
+            VitalSignPlotViewModel = new VitalSignPlotViewModel(SelectedTime);
             VitalSignPlotViewModel.PropertyChanged += VitalSignPlotViewModel_PropertyChanged;
-            WaveformPlotViewModel = new HistoricWaveformPlotViewModel();
+            WaveformPlotViewModel = new HistoricWaveformPlotViewModel(SelectedTime);
 
             UpdateCommand = new RelayCommand(AvailableDataPlotViewModel.UpdateDataRange);
             LoadDataRangeCommand = new RelayCommand(LoadVitalSignDataForSelectedTimeRange);
+            AnnotationCommand = new RelayCommand(AddAnnotation);
 
             AvailableDataPlotViewModel.UpdateDataRange();
         }
@@ -45,8 +48,11 @@ namespace CentralMonitorGUI.ViewModels
             LoadWaveformsForTime(VitalSignPlotViewModel.SelectedTime);
         }
 
+        public SelectedTime SelectedTime { get; }
+
         public ICommand UpdateCommand { get; }
         public ICommand LoadDataRangeCommand { get; }
+        public ICommand AnnotationCommand { get; }
 
         public AvailableDataPlotViewModel AvailableDataPlotViewModel { get; }
         public VitalSignPlotViewModel VitalSignPlotViewModel { get; }
@@ -56,7 +62,11 @@ namespace CentralMonitorGUI.ViewModels
         {
             var timeRange = AvailableDataPlotViewModel.SelectedTimeRange;
             var sensorTypes = new[] {SensorType.SpO2, SensorType.Ecg, SensorType.BloodPressure, SensorType.Respiration }; // TODO
-            var vitalSignTypes = new[] {VitalSignType.SpO2, VitalSignType.HeartRate, VitalSignType.RespirationRate };
+            var vitalSignTypes = new[]
+            {
+                VitalSignType.SpO2, VitalSignType.HeartRate, VitalSignType.RespirationRate,
+                VitalSignType.SystolicBloodPressure, VitalSignType.DiastolicBloodPressure
+            };
             var vitalSignData = await Task.Run(() => historyLoader.GetVitalSignDataInRange(patientInfo, timeRange, sensorTypes, vitalSignTypes));
             VitalSignPlotViewModel.PlotData(vitalSignData, timeRange);
             WaveformPlotViewModel.ClearPlot();
@@ -75,6 +85,15 @@ namespace CentralMonitorGUI.ViewModels
             var waveformData = await Task.Run(() => historyLoader.GetWaveformDataInRange(patientInfo, timeRange, sensorTypes));
             var focusedRange = new Range<DateTime>(selectedTime, selectedTime + waveformTimeSpan);
             WaveformPlotViewModel.PlotWaveforms(waveformData, focusedRange);
+        }
+
+        private void AddAnnotation()
+        {
+            var annotationViewModel = new AnnotationNoteViewModel(SelectedTime.Time, SelectedTime.Source);
+            var annotationWindow = new AnnotationNoteWindow {ViewModel = annotationViewModel};
+            var result = annotationWindow.ShowDialog();
+            if(result != true)
+                return;
         }
     }
 }

@@ -61,10 +61,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ViewModels\AnnotationNoteViewModel.cs" />
     <Compile Include="ViewModels\AvailableDataPlotViewModel.cs" />
     <Compile Include="ViewModels\DataExplorerWindowViewModel.cs" />
     <Compile Include="ViewModels\DataExplorerWindowViewModelFactory.cs" />
+    <Compile Include="ViewModels\PatientDatabaseViewModel.cs" />
     <Compile Include="ViewModels\PatientMonitorViewModel.cs" />
+    <Compile Include="ViewModels\SelectedTime.cs" />
     <Compile Include="ViewModels\UpdateTrigger.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
@@ -72,6 +75,9 @@
     <Compile Include="ViewModels\VitalSignViewModel.cs" />
     <Compile Include="ViewModels\HistoricWaveformPlotViewModel.cs" />
     <Compile Include="ViewModels\WaveformViewModel.cs" />
+    <Compile Include="Views\AnnotationNoteWindow.xaml.cs">
+      <DependentUpon>AnnotationNoteWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\AvailableDataPlotView.xaml.cs">
       <DependentUpon>AvailableDataPlotView.xaml</DependentUpon>
     </Compile>
@@ -80,6 +86,9 @@
     </Compile>
     <Compile Include="Views\HistoricWaveformPlotView.xaml.cs">
       <DependentUpon>HistoricWaveformPlotView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PatientDatabaseWindow.xaml.cs">
+      <DependentUpon>PatientDatabaseWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PatientMonitorView.xaml.cs">
       <DependentUpon>PatientMonitorView.xaml</DependentUpon>
@@ -93,6 +102,10 @@
     <Compile Include="Views\WaveformView.xaml.cs">
       <DependentUpon>WaveformView.xaml</DependentUpon>
     </Compile>
+    <Page Include="Views\AnnotationNoteWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\AvailableDataPlotView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -117,6 +130,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\PatientDatabaseWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\PatientMonitorView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
