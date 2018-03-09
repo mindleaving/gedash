@@ -17,7 +17,7 @@ namespace CentralMonitorGUI.ViewModels
     public class HistoricWaveformPlotViewModel : ViewModelBase
     {
         private readonly SelectedTime selectedTime;
-        private readonly int seriesSeparation = 0;
+        private readonly int seriesSeparation = 100;
         private readonly Axis xAxis;
         private readonly Axis yAxis;
         private string instructionText = "Hold SHIFT and click on plot above for showing waveforms";
@@ -87,7 +87,7 @@ namespace CentralMonitorGUI.ViewModels
             line1 = null;
             line2 = null;
 
-            var yOffset = 0;
+            var yOffset = 0.0;
             foreach (var kvp in waveforms.OrderBy(kvp => GetSensorOrder(kvp.Key)))
             {
                 var sensorType = kvp.Key;
@@ -95,9 +95,9 @@ namespace CentralMonitorGUI.ViewModels
                 if(!timeSeries.Any())
                     continue;
 
-                var sensorMinValue = timeSeries.Min(x => x.Value);
-                var sensorMaxValue = timeSeries.Max(x => x.Value);
-                var sensorYSpan = sensorMaxValue - sensorMinValue;
+                var sensorMinMaxMean = new MinMaxMean(timeSeries.Select(x => (double)x.Value));
+                var sensorYSpan = Math.Min(1400, sensorMinMaxMean.Span);
+                yOffset -= 0.5 * sensorYSpan; // Move down by half the Y-span
 
                 var sensorColor = GetSensorColor(sensorType);
                 var series = new LineSeries
@@ -109,13 +109,13 @@ namespace CentralMonitorGUI.ViewModels
                 foreach (var timePoint in timeSeries)
                 {
                     var x = (timePoint.Time - focusedTimeRange.From).TotalSeconds;
-                    var y = yOffset + timePoint.Value - sensorMaxValue;
+                    var y = yOffset + timePoint.Value - sensorMinMaxMean.Mean;
                     series.Points.Add(new DataPoint(x, y));
                 }
                 PlotModel.Series.Add(series);
                 series.MouseDown += Series_MouseDown;
 
-                yOffset -= sensorYSpan;
+                yOffset -= 0.5*sensorYSpan;  // Move down by second half of the Y-span
                 yOffset -= seriesSeparation;
             }
             xAxis.Zoom(0, (focusedTimeRange.To - focusedTimeRange.From).TotalSeconds);
