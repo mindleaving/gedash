@@ -40,7 +40,7 @@ namespace CentralMonitorGUI.ViewModels
             if(SelectedPatient == null)
                 return;
             var dataExplorerViewModel = dataExplorerWindowViewModelFactory.Create(SelectedPatient);
-            var dialog = new DataExplorerWindow(dataExplorerViewModel);
+            var dialog = new DataExplorerWindow { ViewModel = dataExplorerViewModel };
             dialog.ShowDialog();
         }
     }

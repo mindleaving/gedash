@@ -325,7 +325,7 @@ namespace CentralMonitorGUI.ViewModels
                 new DispatcherSynchronizationContext(Dispatcher.CurrentDispatcher));
 
             var dataExplorerViewModel = dataExplorerWindowViewModelFactory.Create(patientInfo);
-            var dataExplorerWindow = new DataExplorerWindow(dataExplorerViewModel);
+            var dataExplorerWindow = new DataExplorerWindow { ViewModel = dataExplorerViewModel };
             dataExplorerWindow.Closed += (sender, args) =>
                 Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Background);
             dataExplorerWindow.Show();

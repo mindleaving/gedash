@@ -45,8 +45,8 @@ namespace CentralMonitorGUI
             var waveformFileLoader = new WaveformFileLoader(fileManager);
             var historyLoader = new HistoryLoader(fileManager, availableDataFinder, vitalSignFileLoader, waveformFileLoader);
             var dataExplorerWindowViewModelFactory = new DataExplorerWindowViewModelFactory(historyLoader, fileManager);
-            var mainViewModel = new MainViewModel(network, updateTrigger, fileManager, dataExplorerWindowViewModelFactory);
-            var mainWindow = new MainWindow(mainViewModel);
+            var mainWindow = new MainWindow();
+            mainWindow.ViewModel = new MainViewModel(network, updateTrigger, fileManager, dataExplorerWindowViewModelFactory, mainWindow.Close);
 
             using (var waveformStorer = new WaveformStorer(network, fileManager, appendToFile))
             using (var vitalSignsStorer = new VitalSignsStorer(network, fileManager, appendToFile))

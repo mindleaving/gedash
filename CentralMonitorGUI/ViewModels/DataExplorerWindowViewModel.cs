@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using CentralMonitorGUI.Views;
 using Commons.Mathematics;
@@ -42,13 +43,13 @@ namespace CentralMonitorGUI.ViewModels
             AvailableDataPlotViewModel.UpdateDataRange();
         }
 
-        private void VitalSignPlotViewModel_PropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
+        private async void VitalSignPlotViewModel_PropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
         {
             if(propertyChangedEventArgs.PropertyName != nameof(VitalSignPlotViewModel.SelectedTime))
                 return;
             if(VitalSignPlotViewModel.SelectedTime == DateTime.MinValue)
                 return;
-            LoadWaveformsForTime(VitalSignPlotViewModel.SelectedTime);
+            await LoadWaveformsForTime(VitalSignPlotViewModel.SelectedTime);
         }
 
         public SelectedTime SelectedTime { get; }
@@ -65,6 +66,8 @@ namespace CentralMonitorGUI.ViewModels
         private async void LoadVitalSignDataForSelectedTimeRange()
         {
             var timeRange = AvailableDataPlotViewModel.SelectedTimeRange;
+            if(timeRange == null)
+                return;
             await LoadVitalSignDataForTimeRange(timeRange);
         }
 
@@ -101,6 +104,11 @@ namespace CentralMonitorGUI.ViewModels
 
         private void AddAnnotation()
         {
+            if (SelectedTime.Time == DateTime.MinValue)
+            {
+                MessageBox.Show("No time selected");
+                return;
+            }
             var annotationViewModel = new AnnotationNoteViewModel(SelectedTime.Time);
             var annotationWindow = new AnnotationNoteWindow {ViewModel = annotationViewModel};
             var result = annotationWindow.ShowDialog();

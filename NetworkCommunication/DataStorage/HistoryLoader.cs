@@ -48,6 +48,8 @@ namespace NetworkCommunication.DataStorage
             IReadOnlyList<SensorType> sensorTypes,
             IReadOnlyList<VitalSignType> vitalSignTypes)
         {
+            if(timeRange == null)
+                throw new ArgumentNullException(nameof(timeRange));
             var patientDirectory = fileManager.GetPatientDirectory(patientInfo);
             var matchingDateDirectories = Directory.GetDirectories(patientDirectory)
                 .Where(dir => IsDateDirectoryInRange(dir, timeRange))

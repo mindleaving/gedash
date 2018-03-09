@@ -18,17 +18,21 @@ namespace CentralMonitorGUI.ViewModels
         private readonly UpdateTrigger updateTrigger;
         private readonly FileManager fileManager;
         private readonly DataExplorerWindowViewModelFactory dataExplorerWindowViewModelFactory;
+        private readonly Action closeWindow;
 
         public MainViewModel(
             MonitorNetwork network,
             UpdateTrigger updateTrigger,
             FileManager fileManager,
-            DataExplorerWindowViewModelFactory dataExplorerWindowViewModelFactory)
+            DataExplorerWindowViewModelFactory dataExplorerWindowViewModelFactory,
+            Action closeWindow)
         {
             this.updateTrigger = updateTrigger;
             this.fileManager = fileManager;
             this.dataExplorerWindowViewModelFactory = dataExplorerWindowViewModelFactory;
+            this.closeWindow = closeWindow;
 
+            ExitCommand = new RelayCommand(closeWindow);
             OpenPatientDatabaseCommand = new RelayCommand(OpenPatientDatabase);
 
             network.NewMonitorDiscovered += Network_NewMonitorDiscovered;
@@ -56,6 +60,7 @@ namespace CentralMonitorGUI.ViewModels
 
         public ObservableCollection<PatientMonitorViewModel> Monitors { get; } = new ObservableCollection<PatientMonitorViewModel>();
 
+        public ICommand ExitCommand { get; }
         public ICommand OpenPatientDatabaseCommand { get; }
 
         private void OpenPatientDatabase()
@@ -100,7 +105,7 @@ namespace CentralMonitorGUI.ViewModels
                 new DispatcherSynchronizationContext(Dispatcher.CurrentDispatcher));
 
             var patientDatabaseViewModel = new PatientDatabaseViewModel(fileManager, dataExplorerWindowViewModelFactory);
-            var patientDatabaseWindow = new PatientDatabaseWindow(patientDatabaseViewModel);
+            var patientDatabaseWindow = new PatientDatabaseWindow { ViewModel = patientDatabaseViewModel };
             patientDatabaseWindow.Closed += (sender, args) =>
                 Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Background);
             patientDatabaseWindow.Show();
