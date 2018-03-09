@@ -13,6 +13,7 @@
         </Grid.RowDefinitions>
 
         <ListView Grid.Row="0" Grid.Column="0" 
+                  x:Name="annotationListView"
                   ItemsSource="{Binding Annotations}" 
                   SelectedItem="{Binding SelectedAnnotation}">
             <ListView.View>

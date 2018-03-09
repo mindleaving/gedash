@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Input;
 using Commons.Wpf;
 using NetworkCommunication.DataStorage;
@@ -53,7 +54,13 @@ namespace CentralMonitorGUI.ViewModels
 
         private void DeleteAnnotation()
         {
-            if(SelectedAnnotation == null)
+            if (SelectedAnnotation == null)
+                return;
+            var confirmationDialog = MessageBox.Show(
+                $"Are you sure you want to delete '{SelectedAnnotation.Title}'?",
+                "Confirm remove annotation",
+                MessageBoxButton.YesNo);
+            if(confirmationDialog != MessageBoxResult.Yes)
                 return;
             annotationDatabase.Remove(SelectedAnnotation);
             Annotations.Remove(SelectedAnnotation);
