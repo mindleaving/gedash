@@ -37,6 +37,7 @@ namespace CentralMonitorGUI.ViewModels
             UpdateCommand = new RelayCommand(AvailableDataPlotViewModel.UpdateDataRange);
             LoadDataRangeCommand = new RelayCommand(LoadVitalSignDataForSelectedTimeRange);
             AnnotateCommand = new RelayCommand(AddAnnotation);
+            ManageAnnotationsCommand = new RelayCommand(ManageAnnotations);
 
             AvailableDataPlotViewModel.UpdateDataRange();
         }
@@ -55,6 +56,7 @@ namespace CentralMonitorGUI.ViewModels
         public ICommand UpdateCommand { get; }
         public ICommand LoadDataRangeCommand { get; }
         public ICommand AnnotateCommand { get; }
+        public ICommand ManageAnnotationsCommand { get; }
 
         public AvailableDataPlotViewModel AvailableDataPlotViewModel { get; }
         public VitalSignPlotViewModel VitalSignPlotViewModel { get; }
@@ -63,20 +65,25 @@ namespace CentralMonitorGUI.ViewModels
         private async void LoadVitalSignDataForSelectedTimeRange()
         {
             var timeRange = AvailableDataPlotViewModel.SelectedTimeRange;
-            var sensorTypes = new[] {SensorType.SpO2, SensorType.Ecg, SensorType.BloodPressure, SensorType.Respiration }; // TODO
+            await LoadVitalSignDataForTimeRange(timeRange);
+        }
+
+        private async Task LoadVitalSignDataForTimeRange(Range<DateTime> timeRange)
+        {
+            var sensorTypes = new[] {SensorType.SpO2, SensorType.Ecg, SensorType.BloodPressure, SensorType.Respiration}; // TODO
             var vitalSignTypes = new[]
             {
                 VitalSignType.SpO2, VitalSignType.HeartRate, VitalSignType.RespirationRate,
                 VitalSignType.SystolicBloodPressure, VitalSignType.DiastolicBloodPressure
             };
-            var vitalSignData = await Task.Run(() => historyLoader.GetVitalSignDataInRange(patientInfo, timeRange, sensorTypes, vitalSignTypes));
+            var vitalSignData = await Task.Run(() =>
+                historyLoader.GetVitalSignDataInRange(patientInfo, timeRange, sensorTypes, vitalSignTypes));
             VitalSignPlotViewModel.PlotData(vitalSignData, timeRange);
-            var annotations = annotationDatabase.Annotations.Where(annotation => timeRange.Contains(annotation.Timestamp));
-            VitalSignPlotViewModel.SetAnnotations(annotations);
+            VitalSignPlotViewModel.SetAnnotations(annotationDatabase.Annotations);
             WaveformPlotViewModel.ClearPlot();
         }
 
-        private async void LoadWaveformsForTime(DateTime selectedTime)
+        private async Task LoadWaveformsForTime(DateTime selectedTime)
         {
             WaveformPlotViewModel.ClearPlot();
             WaveformPlotViewModel.InstructionText = "Loading...";
@@ -89,8 +96,7 @@ namespace CentralMonitorGUI.ViewModels
             var waveformData = await Task.Run(() => historyLoader.GetWaveformDataInRange(patientInfo, timeRange, sensorTypes));
             var focusedRange = new Range<DateTime>(selectedTime, selectedTime + waveformTimeSpan);
             WaveformPlotViewModel.PlotWaveforms(waveformData, focusedRange);
-            var annotations = annotationDatabase.Annotations.Where(annotation => timeRange.Contains(annotation.Timestamp));
-            WaveformPlotViewModel.SetAnnotations(annotations);
+            WaveformPlotViewModel.SetAnnotations(annotationDatabase.Annotations);
         }
 
         private void AddAnnotation()
@@ -104,6 +110,33 @@ namespace CentralMonitorGUI.ViewModels
                 annotationViewModel.Timestamp,
                 annotationViewModel.Title,
                 annotationViewModel.Note));
+            UpdateAnnotations();
+        }
+
+        private void ManageAnnotations()
+        {
+            async void ShowAnnotation(Annotation annotation)
+            {
+                var timeRange = new Range<DateTime>(annotation.Timestamp.Subtract(TimeSpan.FromHours(1)), annotation.Timestamp.Add(TimeSpan.FromHours(1)));
+                await LoadVitalSignDataForTimeRange(timeRange);
+                await LoadWaveformsForTime(annotation.Timestamp.Subtract(TimeSpan.FromSeconds(3)));
+            }
+
+            var annotationDatabaseViewModel = new AnnotationDatabaseViewModel(
+                annotationDatabase, 
+                ShowAnnotation,
+                UpdateAnnotations);
+            var annotationDatabaseWindow = new AnnotationDatabaseWindow
+            {
+                ViewModel = annotationDatabaseViewModel
+            };
+            annotationDatabaseWindow.ShowDialog();
+        }
+
+        private void UpdateAnnotations()
+        {
+            VitalSignPlotViewModel.SetAnnotations(annotationDatabase.Annotations);
+            WaveformPlotViewModel.SetAnnotations(annotationDatabase.Annotations);
         }
     }
 }

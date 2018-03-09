@@ -21,6 +21,7 @@ namespace CentralMonitorGUI.ViewModels
         private DateTime selectedTime;
         private readonly SelectedTime globalSelectedTime;
         private OxyPlot.Annotations.Annotation timeAnnotation;
+        private Range<DateTime> loadedTimeRange;
 
         public VitalSignPlotViewModel(SelectedTime selectedTime)
         {
@@ -59,6 +60,8 @@ namespace CentralMonitorGUI.ViewModels
             IReadOnlyDictionary<SensorVitalSignType, TimeSeries<short>> vitalSignData,
             Range<DateTime> focusedTimeRange)
         {
+            loadedTimeRange = focusedTimeRange;
+
             PlotModel.Series.Clear();
             PlotModel.Axes.Clear();
             PlotModel.Axes.Add(xAxis);
@@ -154,6 +157,8 @@ namespace CentralMonitorGUI.ViewModels
             PlotModel.Annotations.Clear();
             if(timeAnnotation != null)
                 PlotModel.Annotations.Add(timeAnnotation);
+            if (loadedTimeRange != null)
+                annotations = annotations.Where(annotation => loadedTimeRange.Contains(annotation.Timestamp));
             annotations.ForEach(annotation => PlotModel.Annotations.Add(new LineAnnotation
             {
                 FontSize = 10,

@@ -232,6 +232,8 @@ namespace CentralMonitorGUI.ViewModels
                 PlotModel.Annotations.Add(line1);
             if(line2 != null)
                 PlotModel.Annotations.Add(line2);
+            if (focusedTimeRange != null)
+                annotations = annotations.Where(annotation => focusedTimeRange.Contains(annotation.Timestamp));
             annotations.ForEach(annotation => PlotModel.Annotations.Add(new LineAnnotation
             {
                 FontSize = 10,

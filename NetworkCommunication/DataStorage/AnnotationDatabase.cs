@@ -28,6 +28,12 @@ namespace NetworkCommunication.DataStorage
             StoreAnnotations();
         }
 
+        public void Remove(Annotation annotation)
+        {
+            annotations.Remove(annotation);
+            StoreAnnotations();
+        }
+
         private void LoadAnnotations()
         {
             annotations.Clear();

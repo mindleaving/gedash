@@ -61,6 +61,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ViewModels\AnnotationDatabaseViewModel.cs" />
     <Compile Include="ViewModels\AnnotationNoteViewModel.cs" />
     <Compile Include="ViewModels\AvailableDataPlotViewModel.cs" />
     <Compile Include="ViewModels\DataExplorerWindowViewModel.cs" />
@@ -75,6 +76,9 @@
     <Compile Include="ViewModels\VitalSignViewModel.cs" />
     <Compile Include="ViewModels\HistoricWaveformPlotViewModel.cs" />
     <Compile Include="ViewModels\WaveformViewModel.cs" />
+    <Compile Include="Views\AnnotationDatabaseWindow.xaml.cs">
+      <DependentUpon>AnnotationDatabaseWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\AnnotationNoteWindow.xaml.cs">
       <DependentUpon>AnnotationNoteWindow.xaml</DependentUpon>
     </Compile>
@@ -102,6 +106,10 @@
     <Compile Include="Views\WaveformView.xaml.cs">
       <DependentUpon>WaveformView.xaml</DependentUpon>
     </Compile>
+    <Page Include="Views\AnnotationDatabaseWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\AnnotationNoteWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
