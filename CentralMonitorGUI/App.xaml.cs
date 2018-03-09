@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Windows;
+using CentralMonitorGUI.Properties;
 using CentralMonitorGUI.ViewModels;
 using CentralMonitorGUI.Views;
 using NetworkCommunication.Communicators;
@@ -21,8 +22,10 @@ namespace CentralMonitorGUI
             var waveformUpdateInterval = TimeSpan.FromMilliseconds(33);
             var newRangeThreshold = TimeSpan.FromMinutes(5);
             var appendToFile = true;
-            var directory = $@"C:\Users\Jan\Documents\GEDashData";
-            var fileManager = new FileManager(directory);
+            var dataDirectory = Settings.Default.DataPath;
+            if (string.IsNullOrEmpty(dataDirectory))
+                dataDirectory = "Data";
+            var fileManager = new FileManager(dataDirectory);
 
             var mainCancellationTokenSource = new CancellationTokenSource();
             var discoveryMessageParser = new DiscoveryMessageParser();

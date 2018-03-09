@@ -20,6 +20,8 @@ namespace NetworkCommunication.DataStorage
         public FileManager(string baseDirectory)
         {
             this.baseDirectory = baseDirectory;
+            if (!Directory.Exists(baseDirectory))
+                Directory.CreateDirectory(baseDirectory);
         }
 
         public string GetVitalSignFileName()
@@ -44,9 +46,12 @@ namespace NetworkCommunication.DataStorage
 
         public string GetPatientDirectory(PatientInfo patientInfo)
         {
-            return Path.Combine(
+            var patientDirectory = Path.Combine(
                 baseDirectory,
                 $"{patientInfo.LastName.ToUpperInvariant()}_{patientInfo.FirstName.ToUpperInvariant()}");
+            if (!Directory.Exists(patientDirectory))
+                Directory.CreateDirectory(patientDirectory);
+            return patientDirectory;
         }
 
         public IList<PatientInfo> GetAllPatients()
