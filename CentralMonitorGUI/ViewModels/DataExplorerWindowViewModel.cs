@@ -18,13 +18,15 @@ namespace CentralMonitorGUI.ViewModels
         private readonly TimeSpan waveformDataExpansion = TimeSpan.FromSeconds(15);
         private readonly PatientInfo patientInfo;
         private readonly HistoryLoader historyLoader;
+        private readonly AnnotationDatabase annotationDatabase;
 
         public DataExplorerWindowViewModel(
             PatientInfo patientInfo,
-            HistoryLoader historyLoader)
+            HistoryLoader historyLoader, AnnotationDatabase annotationDatabase)
         {
             this.patientInfo = patientInfo;
             this.historyLoader = historyLoader;
+            this.annotationDatabase = annotationDatabase;
 
             SelectedTime = new SelectedTime();
             AvailableDataPlotViewModel = new AvailableDataPlotViewModel(patientInfo, historyLoader);
@@ -34,7 +36,7 @@ namespace CentralMonitorGUI.ViewModels
 
             UpdateCommand = new RelayCommand(AvailableDataPlotViewModel.UpdateDataRange);
             LoadDataRangeCommand = new RelayCommand(LoadVitalSignDataForSelectedTimeRange);
-            AnnotationCommand = new RelayCommand(AddAnnotation);
+            AnnotateCommand = new RelayCommand(AddAnnotation);
 
             AvailableDataPlotViewModel.UpdateDataRange();
         }
@@ -52,7 +54,7 @@ namespace CentralMonitorGUI.ViewModels
 
         public ICommand UpdateCommand { get; }
         public ICommand LoadDataRangeCommand { get; }
-        public ICommand AnnotationCommand { get; }
+        public ICommand AnnotateCommand { get; }
 
         public AvailableDataPlotViewModel AvailableDataPlotViewModel { get; }
         public VitalSignPlotViewModel VitalSignPlotViewModel { get; }
@@ -69,6 +71,8 @@ namespace CentralMonitorGUI.ViewModels
             };
             var vitalSignData = await Task.Run(() => historyLoader.GetVitalSignDataInRange(patientInfo, timeRange, sensorTypes, vitalSignTypes));
             VitalSignPlotViewModel.PlotData(vitalSignData, timeRange);
+            var annotations = annotationDatabase.Annotations.Where(annotation => timeRange.Contains(annotation.Timestamp));
+            VitalSignPlotViewModel.SetAnnotations(annotations);
             WaveformPlotViewModel.ClearPlot();
         }
 
@@ -85,15 +89,21 @@ namespace CentralMonitorGUI.ViewModels
             var waveformData = await Task.Run(() => historyLoader.GetWaveformDataInRange(patientInfo, timeRange, sensorTypes));
             var focusedRange = new Range<DateTime>(selectedTime, selectedTime + waveformTimeSpan);
             WaveformPlotViewModel.PlotWaveforms(waveformData, focusedRange);
+            var annotations = annotationDatabase.Annotations.Where(annotation => timeRange.Contains(annotation.Timestamp));
+            WaveformPlotViewModel.SetAnnotations(annotations);
         }
 
         private void AddAnnotation()
         {
-            var annotationViewModel = new AnnotationNoteViewModel(SelectedTime.Time, SelectedTime.Source);
+            var annotationViewModel = new AnnotationNoteViewModel(SelectedTime.Time);
             var annotationWindow = new AnnotationNoteWindow {ViewModel = annotationViewModel};
             var result = annotationWindow.ShowDialog();
             if(result != true)
                 return;
+            annotationDatabase.Add(new Annotation(
+                annotationViewModel.Timestamp,
+                annotationViewModel.Title,
+                annotationViewModel.Note));
         }
     }
 }

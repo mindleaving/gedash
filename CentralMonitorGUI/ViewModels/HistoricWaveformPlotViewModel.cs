@@ -10,6 +10,7 @@ using OxyPlot;
 using OxyPlot.Annotations;
 using OxyPlot.Axes;
 using OxyPlot.Series;
+using Annotation = NetworkCommunication.Objects.Annotation;
 
 namespace CentralMonitorGUI.ViewModels
 {
@@ -23,6 +24,8 @@ namespace CentralMonitorGUI.ViewModels
         private DataPoint measuringStartPoint = DataPoint.Undefined;
         private DataPoint measuringEndPoint = DataPoint.Undefined;
         private Range<DateTime> focusedTimeRange;
+        private OxyPlot.Annotations.Annotation line1;
+        private OxyPlot.Annotations.Annotation line2;
 
         public HistoricWaveformPlotViewModel(SelectedTime selectedTime)
         {
@@ -81,6 +84,8 @@ namespace CentralMonitorGUI.ViewModels
             this.focusedTimeRange = focusedTimeRange;
             PlotModel.Series.Clear();
             PlotModel.Annotations.Clear();
+            line1 = null;
+            line2 = null;
 
             var yOffset = 0;
             foreach (var kvp in waveforms.OrderBy(kvp => GetSensorOrder(kvp.Key)))
@@ -132,26 +137,31 @@ namespace CentralMonitorGUI.ViewModels
                 measuringEndPoint = plotPosition;
             SetSelectedTime(focusedTimeRange.From.AddSeconds(plotPosition.X));
 
-            PlotModel.Annotations.Clear();
             if (measuringStartPoint.IsDefined())
             {
-                PlotModel.Annotations.Add(new LineAnnotation
+                if(line1 != null)
+                    PlotModel.Annotations.Remove(line1);
+                line1 = new LineAnnotation
                 {
                     X = measuringStartPoint.X,
                     Type = LineAnnotationType.Vertical,
                     Color = OxyColor.FromRgb(Colors.Red.R, Colors.Red.G, Colors.Red.B),
                     StrokeThickness = 2,
-                });
+                };
+                PlotModel.Annotations.Add(line1);
             }
             if (measuringEndPoint.IsDefined())
             {
-                PlotModel.Annotations.Add(new LineAnnotation
+                if(line2 != null)
+                    PlotModel.Annotations.Remove(line2);
+                line2 = new LineAnnotation
                 {
                     X = measuringEndPoint.X,
                     Type = LineAnnotationType.Vertical,
                     Color = OxyColor.FromRgb(Colors.Red.R, Colors.Red.G, Colors.Red.B),
                     StrokeThickness = 2,
-                });
+                };
+                PlotModel.Annotations.Add(line2);
             }
             PlotModel.InvalidatePlot(false);
 
@@ -167,7 +177,6 @@ namespace CentralMonitorGUI.ViewModels
         private void SetSelectedTime(DateTime timestamp)
         {
             selectedTime.Time = timestamp;
-            selectedTime.Source = AnnotationType.Waveforms;
         }
 
         private Color GetSensorColor(SensorType sensorType)
@@ -214,6 +223,26 @@ namespace CentralMonitorGUI.ViewModels
                 default:
                     throw new ArgumentOutOfRangeException(nameof(sensorType), sensorType, null);
             }
+        }
+
+        public void SetAnnotations(IEnumerable<Annotation> annotations)
+        {
+            PlotModel.Annotations.Clear();
+            if(line1 != null)
+                PlotModel.Annotations.Add(line1);
+            if(line2 != null)
+                PlotModel.Annotations.Add(line2);
+            annotations.ForEach(annotation => PlotModel.Annotations.Add(new LineAnnotation
+            {
+                FontSize = 10,
+                X = (annotation.Timestamp - focusedTimeRange.From).TotalSeconds,
+                Text = annotation.Title,
+                ToolTip = annotation.Note,
+                Type = LineAnnotationType.Vertical,
+                Color = OxyColor.FromRgb(Colors.Purple.R, Colors.Purple.G, Colors.Purple.B),
+                StrokeThickness = 4
+            }));
+            PlotModel.InvalidatePlot(false);
         }
     }
 }

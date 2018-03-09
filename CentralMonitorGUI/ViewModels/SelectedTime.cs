@@ -18,17 +18,6 @@ namespace CentralMonitorGUI.ViewModels
             }
         }
 
-        private AnnotationType source;
-        public AnnotationType Source
-        {
-            get { return source; }
-            set
-            {
-                source = value; 
-                OnPropertyChanged();
-            }
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]

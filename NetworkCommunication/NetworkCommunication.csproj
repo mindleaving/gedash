@@ -34,6 +34,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,6 +50,7 @@
     <Compile Include="Communicators\DataRequestReceiver.cs" />
     <Compile Include="Communicators\DataRequestSender.cs" />
     <Compile Include="DataProcessing\DiscoveryMessageParser.cs" />
+    <Compile Include="DataStorage\AnnotationDatabase.cs" />
     <Compile Include="DataStorage\AvailableDataFinder.cs" />
     <Compile Include="DataStorage\AutoFlushingFileWriter.cs" />
     <Compile Include="DataStorage\FileBinarySearch.cs" />
@@ -64,6 +66,8 @@
     <Compile Include="DataStorage\WaveformFileTimeValueParser.cs" />
     <Compile Include="DataStorage\PatientWaveformWriterCollection.cs" />
     <Compile Include="Objects\Alarm.cs" />
+    <Compile Include="Objects\Annotation.cs" />
+    <Compile Include="Objects\AnnotationCollection.cs" />
     <Compile Include="Objects\DataRequestType.cs" />
     <Compile Include="DataProcessing\DiscoveryMessageGenerator.cs" />
     <Compile Include="Communicators\DiscoveryMessageReceiver.cs" />

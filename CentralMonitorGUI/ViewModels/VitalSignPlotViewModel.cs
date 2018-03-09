@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
+using Commons.Extensions;
 using Commons.Mathematics;
 using Commons.Physics;
 using NetworkCommunication.Objects;
@@ -9,6 +10,7 @@ using OxyPlot;
 using OxyPlot.Annotations;
 using OxyPlot.Axes;
 using OxyPlot.Series;
+using Annotation = NetworkCommunication.Objects.Annotation;
 
 namespace CentralMonitorGUI.ViewModels
 {
@@ -18,6 +20,7 @@ namespace CentralMonitorGUI.ViewModels
         private readonly Dictionary<VitalSignType, Axis> vitalSignTypeAxes;
         private DateTime selectedTime;
         private readonly SelectedTime globalSelectedTime;
+        private OxyPlot.Annotations.Annotation timeAnnotation;
 
         public VitalSignPlotViewModel(SelectedTime selectedTime)
         {
@@ -48,7 +51,6 @@ namespace CentralMonitorGUI.ViewModels
             {
                 selectedTime = value;
                 globalSelectedTime.Time = selectedTime;
-                globalSelectedTime.Source = AnnotationType.VitalSigns;
                 OnPropertyChanged();
             }
         }
@@ -60,6 +62,8 @@ namespace CentralMonitorGUI.ViewModels
             PlotModel.Series.Clear();
             PlotModel.Axes.Clear();
             PlotModel.Axes.Add(xAxis);
+            PlotModel.Annotations.Clear();
+            timeAnnotation = null;
 
             foreach (var sensorVitalSignType in vitalSignData.Keys)
             {
@@ -92,8 +96,9 @@ namespace CentralMonitorGUI.ViewModels
                 throw new Exception($"Event handler for series was hooked up to {sender.GetType()}");
             var plotPoint = ((LineSeries)sender).InverseTransform(e.Position);
             SelectedTime = DateTimeAxis.ToDateTime(plotPoint.X);
-            PlotModel.Annotations.Clear();
-            PlotModel.Annotations.Add(new LineAnnotation
+            if(timeAnnotation != null)
+                PlotModel.Annotations.Remove(timeAnnotation);
+            timeAnnotation = new LineAnnotation
             {
                 Text = $"{SelectedTime:HH:mm:ss}",
                 FontSize = 14,
@@ -101,7 +106,8 @@ namespace CentralMonitorGUI.ViewModels
                 Type = LineAnnotationType.Vertical,
                 Color = OxyColor.FromRgb(Colors.Red.R, Colors.Red.G, Colors.Red.B),
                 StrokeThickness = 3,
-            });
+            };
+            PlotModel.Annotations.Add(timeAnnotation);
             PlotModel.InvalidatePlot(false);
         }
 
@@ -141,6 +147,25 @@ namespace CentralMonitorGUI.ViewModels
                 Minimum = min,
                 Maximum = max
             };
+        }
+
+        public void SetAnnotations(IEnumerable<Annotation> annotations)
+        {
+            PlotModel.Annotations.Clear();
+            if(timeAnnotation != null)
+                PlotModel.Annotations.Add(timeAnnotation);
+            annotations.ForEach(annotation => PlotModel.Annotations.Add(new LineAnnotation
+            {
+                FontSize = 10,
+                X = DateTimeAxis.ToDouble(annotation.Timestamp),
+                Text = annotation.Title,
+                ToolTip = annotation.Note,
+                Type = LineAnnotationType.Vertical,
+                LineStyle = LineStyle.Solid,
+                Color = OxyColor.FromRgb(Colors.Purple.R, Colors.Purple.G, Colors.Purple.B),
+                StrokeThickness = 4
+            }));
+            PlotModel.InvalidatePlot(false);
         }
     }
 }

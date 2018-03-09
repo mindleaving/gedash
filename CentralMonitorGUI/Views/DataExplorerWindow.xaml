@@ -25,7 +25,7 @@
 
         <StackPanel Grid.Row="2" Orientation="Horizontal">
             <Button Content="Load selected range" Command="{Binding LoadDataRangeCommand}" Margin="5 2"/>
-            <Button Content="Add annotation" Command="{Binding AnnotateCommand}" Margin="5"/>
+            <Button Content="Add annotation" Command="{Binding AnnotateCommand}" Margin="5 2"/>
         </StackPanel>
 
         <views:VitalSignPlotView Grid.Row="3" ViewModel="{Binding VitalSignPlotViewModel}"/>

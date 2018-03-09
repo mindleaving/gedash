@@ -4,25 +4,18 @@ using Commons.Wpf;
 
 namespace CentralMonitorGUI.ViewModels
 {
-    public enum AnnotationType
-    {
-        VitalSigns,
-        Waveforms
-    }
     public class AnnotationNoteViewModel : ViewModelBase
     {
-        public AnnotationNoteViewModel(DateTime timestamp, AnnotationType annotationType)
+        public AnnotationNoteViewModel(DateTime timestamp)
         {
-            Timestamp = timestamp.ToString("yyyy-MM-dd") + " - ";
-            AnnotationType = annotationType;
+            Timestamp = timestamp;
             CancelCommand = new RelayCommand(Cancel);
             SaveCommand = new RelayCommand(Save);
         }
 
         public event EventHandler<bool?> CloseRequested;
 
-        public string Timestamp { get; }
-        public AnnotationType AnnotationType { get; }
+        public DateTime Timestamp { get; }
 
         private string title;
         public string Title
