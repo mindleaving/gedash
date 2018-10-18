@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
-using Commons.Wpf;
 using NetworkCommunication.DataStorage;
 using NetworkCommunication.Objects;
 

@@ -6,7 +6,6 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using CentralMonitorGUI.Views;
-using Commons.Wpf;
 using NetworkCommunication.DataStorage;
 using NetworkCommunication.Objects;
 

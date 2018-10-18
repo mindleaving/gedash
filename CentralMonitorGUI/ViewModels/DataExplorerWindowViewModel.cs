@@ -6,7 +6,6 @@ using System.Windows;
 using System.Windows.Input;
 using CentralMonitorGUI.Views;
 using Commons.Mathematics;
-using Commons.Wpf;
 using NetworkCommunication;
 using NetworkCommunication.DataStorage;
 using NetworkCommunication.Objects;

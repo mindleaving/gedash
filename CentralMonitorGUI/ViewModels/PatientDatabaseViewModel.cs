@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Input;
 using CentralMonitorGUI.Views;
-using Commons.Wpf;
 using NetworkCommunication.DataStorage;
 using NetworkCommunication.Objects;
 

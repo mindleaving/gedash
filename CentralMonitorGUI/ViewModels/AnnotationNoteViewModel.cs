@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Input;
-using Commons.Wpf;
 
 namespace CentralMonitorGUI.ViewModels
 {
