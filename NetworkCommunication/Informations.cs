@@ -67,6 +67,8 @@ namespace NetworkCommunication
                     return SensorType.Ecg;
                 case 0x22:
                     return SensorType.Respiration;
+                case 0x23:
+                    return SensorType.Temperature;
                 case 0x2d:
                     return SensorType.SpO2;
                 case 0x18:
@@ -111,6 +113,8 @@ namespace NetworkCommunication
                     };
                 case SensorType.SpO2:
                     return new[] {VitalSignType.SpO2, VitalSignType.HeartRate};
+                case SensorType.Temperature:
+                    return new[] {VitalSignType.Temperature};
                 default:
                     return new List<VitalSignType>();
             }

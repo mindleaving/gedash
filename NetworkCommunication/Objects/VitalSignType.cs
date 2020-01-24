@@ -9,6 +9,7 @@
         RespirationRate,
         SystolicBloodPressure,
         DiastolicBloodPressure,
-        MeanArterialPressure
+        MeanArterialPressure,
+        Temperature
     }
 }

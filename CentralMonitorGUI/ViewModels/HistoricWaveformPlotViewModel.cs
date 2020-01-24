@@ -192,6 +192,8 @@ namespace CentralMonitorGUI.ViewModels
                     return Colors.DarkOrange;
                 case SensorType.SpO2:
                     return Colors.DodgerBlue;
+                case SensorType.Temperature:
+                    return Colors.Green;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(sensorType), sensorType, null);
             }
@@ -212,6 +214,8 @@ namespace CentralMonitorGUI.ViewModels
                     return 0;
                 case SensorType.Respiration:
                     return 1;
+                case SensorType.Temperature:
+                    return 2;
                 case SensorType.EcgLeadI:
                     return 10;
                 case SensorType.EcgLeadII:

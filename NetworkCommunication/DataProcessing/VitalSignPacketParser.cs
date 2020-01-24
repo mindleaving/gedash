@@ -29,8 +29,15 @@ namespace NetworkCommunication.DataProcessing
             {
                 var sectionBytes = buffer.Skip(entryPointIndex).Take(SensorEntryLength).ToArray();
                 var sensorCodeByte = sectionBytes[SensorIdentifierOffset+2];
-                var sensorType = Informations.MapVitalSignSenorCodeToSensorType(sensorCodeByte);
-                vitalSignValues.AddRange(ParseSensorSection(sectionBytes, sensorType));
+                try
+                {
+                    var sensorType = Informations.MapVitalSignSenorCodeToSensorType(sensorCodeByte);
+                    vitalSignValues.AddRange(ParseSensorSection(sectionBytes, sensorType));
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    continue; // Ignore unknown sensors
+                }
             }
             return new VitalSignData(ipAddress, counter, vitalSignValues, timestamp);
         }

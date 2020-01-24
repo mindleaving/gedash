@@ -41,18 +41,37 @@ namespace NetworkCommunication.Communicators
                     waveformUdpClient, 
                     TimeSpan.FromSeconds(5), 
                     cancellationToken);
-                var vitalSignsTask = ReceiveVitalSignData(vitalSignsUdpClient, cancellationToken);
-                var waveformTask = ReceiveWaveforms(waveformUdpClient, cancellationToken);
-                await Task.WhenAll(vitalSignsTask, waveformTask);
+                var vitalSignsTask = Task.Factory.StartNew(
+                    () => ReceiveVitalSignData(vitalSignsUdpClient, cancellationToken),
+                    cancellationToken,
+                    TaskCreationOptions.LongRunning,
+                    TaskScheduler.Current);
+                var waveformTask = Task.Factory.StartNew(
+                    () => ReceiveWaveforms(waveformUdpClient, cancellationToken),
+                    cancellationToken,
+                    TaskCreationOptions.LongRunning,
+                    TaskScheduler.Current);
+                try
+                {
+                    await Task.WhenAll(vitalSignsTask, waveformTask);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Ignore
+                }
             }
         }
 
-        private async Task ReceiveVitalSignData(UdpClient udpClient, CancellationToken cancellationToken)
+        private void ReceiveVitalSignData(UdpClient udpClient, CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
                 // Receive response
-                var vitalSignData = await udpClient.ReceiveAsync();
+                var receiveTask = udpClient.ReceiveAsync();
+                receiveTask.Wait(cancellationToken);
+                if(cancellationToken.IsCancellationRequested)
+                    return;
+                var vitalSignData = receiveTask.Result;
                 var timestamp = DateTime.Now;
                 try
                 {
@@ -66,12 +85,16 @@ namespace NetworkCommunication.Communicators
             }
         }
 
-        private async Task ReceiveWaveforms(UdpClient udpClient, CancellationToken cancellationToken)
+        private void ReceiveWaveforms(UdpClient udpClient, CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
                 // Receive response
-                var waveformData = await udpClient.ReceiveAsync();
+                var receiveTask = udpClient.ReceiveAsync();
+                receiveTask.Wait(cancellationToken);
+                if(cancellationToken.IsCancellationRequested)
+                    return;
+                var waveformData = receiveTask.Result;
                 var timestamp = DateTime.Now;
                 try
                 {
