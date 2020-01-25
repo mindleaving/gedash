@@ -8,57 +8,47 @@ using NetworkCommunication.Objects;
 
 namespace NetworkCommunication.Communicators
 {
-    public class WaveformAndVitalSignReceiver
+    public class WaveformAndVitalSignReceiver : IDisposable
     {
-        private readonly DataRequestSender dataRequestSender;
         private readonly VitalSignPacketParser vitalSignPacketParser;
         private readonly WaveformPacketParser waveformPacketParser;
+        private readonly UdpClient vitalSignsUdpClient;
+        private readonly UdpClient waveformUdpClient;
 
         public WaveformAndVitalSignReceiver(
-            DataRequestSender dataRequestSender, 
             VitalSignPacketParser vitalSignPacketParser, 
-            WaveformPacketParser waveformPacketParser)
+            WaveformPacketParser waveformPacketParser,
+            UdpClient vitalSignsUdpClient,
+            UdpClient waveformUdpClient)
         {
-            this.dataRequestSender = dataRequestSender;
             this.vitalSignPacketParser = vitalSignPacketParser;
             this.waveformPacketParser = waveformPacketParser;
+            this.vitalSignsUdpClient = vitalSignsUdpClient;
+            this.waveformUdpClient = waveformUdpClient;
         }
 
         public event EventHandler<WaveformCollection> NewWaveformData;
         public event EventHandler<VitalSignData> NewVitalSignData;
 
-        public async void StartReceiving(
-            IPAddress targetAddress, 
-            CancellationToken cancellationToken)
+        public async void StartReceiving(CancellationToken cancellationToken)
         {
-            var target = new IPEndPoint(targetAddress, Informations.DataRequestPort);
-            using (var vitalSignsUdpClient = new UdpClient(Informations.VitalSignsRequestOutboundPort))
-            using (var waveformUdpClient = new UdpClient(Informations.WaveformRequestOutboundPort))
+            var vitalSignsTask = Task.Factory.StartNew(
+                () => ReceiveVitalSignData(vitalSignsUdpClient, cancellationToken),
+                cancellationToken,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Current);
+            var waveformTask = Task.Factory.StartNew(
+                () => ReceiveWaveforms(waveformUdpClient, cancellationToken),
+                cancellationToken,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Current);
+            try
             {
-                dataRequestSender.StartRequesting( 
-                    target, 
-                    vitalSignsUdpClient, 
-                    waveformUdpClient, 
-                    TimeSpan.FromSeconds(5), 
-                    cancellationToken);
-                var vitalSignsTask = Task.Factory.StartNew(
-                    () => ReceiveVitalSignData(vitalSignsUdpClient, cancellationToken),
-                    cancellationToken,
-                    TaskCreationOptions.LongRunning,
-                    TaskScheduler.Current);
-                var waveformTask = Task.Factory.StartNew(
-                    () => ReceiveWaveforms(waveformUdpClient, cancellationToken),
-                    cancellationToken,
-                    TaskCreationOptions.LongRunning,
-                    TaskScheduler.Current);
-                try
-                {
-                    await Task.WhenAll(vitalSignsTask, waveformTask);
-                }
-                catch (OperationCanceledException)
-                {
-                    // Ignore
-                }
+                await Task.WhenAll(vitalSignsTask, waveformTask);
+            }
+            catch (OperationCanceledException)
+            {
+                // Ignore
             }
         }
 
@@ -109,6 +99,12 @@ namespace NetworkCommunication.Communicators
                     Console.WriteLine(e.Message);
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            vitalSignsUdpClient.Dispose();
+            waveformUdpClient.Dispose();
         }
     }
 }

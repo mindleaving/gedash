@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using NetworkCommunication.Communicators;
 using NetworkCommunication.DataProcessing;
@@ -50,7 +51,9 @@ namespace NetworkCommunication
             var alarmMessageParser = new AlarmMessageParser();
             var alarmReceiver = new AlarmReceiver(alarmMessageParser);
             var dataRequestGenerator = new DataRequestGenerator();
-            var dataRequestSender = new DataRequestSender(dataRequestGenerator);
+            var vitalSignsUdpClient = new UdpClient(Informations.VitalSignsRequestOutboundPort);
+            var waveformUdpClient = new UdpClient(Informations.WaveformRequestOutboundPort);
+            var dataRequestSender = new DataRequestSender(dataRequestGenerator, vitalSignsUdpClient, waveformUdpClient);
             var waveformMessageBuilder = new WaveformMessageBuilder(simulatedSensors, simulators);
             var vitalSignMessageBuilder = new VitalSignMessageBuilder(simulatedSensors, simulators, ourIpAddress);
             var waveformMessageParser = new WaveformPacketParser();
@@ -60,15 +63,19 @@ namespace NetworkCommunication
             using(var waveformStreamer = new WaveformStreamer(waveformMessageBuilder))
             {
                 var dataRequestReceiver = new DataRequestReceiver(waveformStreamer, vitalSignStreamer);
-                var waveformReceiver = new WaveformAndVitalSignReceiver(dataRequestSender, vitalSignMessageParser, waveformMessageParser);
+                var waveformReceiver = new WaveformAndVitalSignReceiver(vitalSignMessageParser, waveformMessageParser, vitalSignsUdpClient, waveformUdpClient);
 
                 discoveryMessageSender.StartSending(cancellationTokenSource.Token);
                 discoveryMessageReceiver.StartReceiving(cancellationTokenSource.Token);
                 alarmReceiver.StartReceiving(cancellationTokenSource.Token);
                 dataRequestReceiver.StartListening(cancellationTokenSource.Token);
+                waveformReceiver.StartReceiving(cancellationTokenSource.Token);
 
                 Console.ReadLine();
                 cancellationTokenSource.Cancel();
+                waveformReceiver.Dispose();
+                vitalSignsUdpClient.Dispose();
+                waveformUdpClient.Dispose();
             }
         }
     }

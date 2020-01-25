@@ -11,16 +11,21 @@ namespace NetworkCommunication.Communicators
     public class DataRequestSender
     {
         private readonly DataRequestGenerator dataRequestGenerator;
+        private readonly UdpClient metadataUdpClient;
+        private readonly UdpClient waveformUdpClient;
 
-        public DataRequestSender(DataRequestGenerator dataRequestGenerator)
+        public DataRequestSender(
+            DataRequestGenerator dataRequestGenerator,
+            UdpClient metadataUdpClient,
+            UdpClient waveformUdpClient)
         {
             this.dataRequestGenerator = dataRequestGenerator;
+            this.metadataUdpClient = metadataUdpClient;
+            this.waveformUdpClient = waveformUdpClient;
         }
 
         public async void StartRequesting(
             IPEndPoint target,
-            UdpClient metadataUdpClient,
-            UdpClient waveformUdpClient,
             TimeSpan interval,
             CancellationToken cancellationToken)
         {

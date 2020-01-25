@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading;
-using Commons;
 using Commons.Extensions;
 using NetworkCommunication.Objects;
 
@@ -10,18 +10,17 @@ namespace NetworkCommunication.Communicators
     public class DataConnectionManager : IDisposable
     {
         private readonly MonitorNetwork network;
-        private readonly WaveformAndVitalSignReceiver waveformAndVitalSignReceiver;
-        private readonly AlarmReceiver alarmReceiver;
+        private readonly DataRequestSender dataRequestSender;
         private readonly Dictionary<PatientMonitor, CancellationTokenSource> cancellationTokenSources = new Dictionary<PatientMonitor, CancellationTokenSource>();
 
         public DataConnectionManager(
             MonitorNetwork network,
             WaveformAndVitalSignReceiver waveformAndVitalSignReceiver,
+            DataRequestSender dataRequestSender,
             AlarmReceiver alarmReceiver)
         {
             this.network = network;
-            this.waveformAndVitalSignReceiver = waveformAndVitalSignReceiver;
-            this.alarmReceiver = alarmReceiver;
+            this.dataRequestSender = dataRequestSender;
 
             network.NewMonitorDiscovered += Network_NewMonitorDiscovered;
             network.MonitorDisappeared += Network_MonitorDisappeared;
@@ -40,8 +39,10 @@ namespace NetworkCommunication.Communicators
             }
             var cancellationTokenSource = new CancellationTokenSource();
             cancellationTokenSources.Add(newMonitor, cancellationTokenSource);
-            waveformAndVitalSignReceiver.StartReceiving(
-                newMonitor.IPAddress,
+            var target = new IPEndPoint(newMonitor.IPAddress, Informations.DataRequestPort);
+            dataRequestSender.StartRequesting( 
+                target,
+                TimeSpan.FromSeconds(5), 
                 cancellationTokenSource.Token);
         }
 

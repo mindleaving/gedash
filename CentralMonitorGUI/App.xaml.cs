@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Net.Sockets;
 using System.Threading;
 using System.Windows;
 using CentralMonitorGUI.Properties;
 using CentralMonitorGUI.ViewModels;
 using CentralMonitorGUI.Views;
+using NetworkCommunication;
 using NetworkCommunication.Communicators;
 using NetworkCommunication.DataProcessing;
 using NetworkCommunication.DataStorage;
@@ -32,13 +34,19 @@ namespace CentralMonitorGUI
             var discoveryMessageReceiver = new DiscoveryMessageReceiver(discoveryMessageParser);
             var network = new MonitorNetwork(discoveryMessageReceiver, connectionLostTimeout);
             var dataRequestGenerator = new DataRequestGenerator();
-            var dataRequestSender = new DataRequestSender(dataRequestGenerator);
+            var vitalSignsUdpClient = new UdpClient(Informations.VitalSignsRequestOutboundPort);
+            var waveformUdpClient = new UdpClient(Informations.WaveformRequestOutboundPort);
+            var dataRequestSender = new DataRequestSender(dataRequestGenerator, vitalSignsUdpClient, waveformUdpClient);
             var vitalSignPacketParser = new VitalSignPacketParser();
             var waveformPacketParser = new WaveformPacketParser();
-            var waveformAndVitalSignReceiver = new WaveformAndVitalSignReceiver(dataRequestSender, vitalSignPacketParser, waveformPacketParser);
+            var waveformAndVitalSignReceiver = new WaveformAndVitalSignReceiver(
+                vitalSignPacketParser,
+                waveformPacketParser,
+                vitalSignsUdpClient,
+                waveformUdpClient);
             var alarmMessageParser = new AlarmMessageParser();
             var alarmReceiver = new AlarmReceiver(alarmMessageParser);
-            var dataConnectionManager = new DataConnectionManager(network, waveformAndVitalSignReceiver, alarmReceiver);
+            var dataConnectionManager = new DataConnectionManager(network, waveformAndVitalSignReceiver, dataRequestSender, alarmReceiver);
             var updateTrigger = new UpdateTrigger(waveformUpdateInterval);
             var availableDataFinder = new AvailableDataFinder(fileManager, newRangeThreshold);
             var vitalSignFileLoader = new VitalSignFileLoader(fileManager);
@@ -53,8 +61,9 @@ namespace CentralMonitorGUI
             {
                 waveformAndVitalSignReceiver.NewWaveformData += (receiver, data) => waveformStorer.Store(data);
                 waveformAndVitalSignReceiver.NewVitalSignData += (receiver, data) => vitalSignsStorer.Store(data);
-                discoveryMessageReceiver.StartReceiving(mainCancellationTokenSource.Token);
+                waveformAndVitalSignReceiver.StartReceiving(mainCancellationTokenSource.Token);
                 alarmReceiver.StartReceiving(mainCancellationTokenSource.Token);
+                discoveryMessageReceiver.StartReceiving(mainCancellationTokenSource.Token);
                 updateTrigger.Start();
 
                 mainWindow.ShowDialog();
@@ -63,6 +72,9 @@ namespace CentralMonitorGUI
                 updateTrigger.Stop();
                 dataConnectionManager.Dispose();
                 mainCancellationTokenSource.Cancel();
+                waveformAndVitalSignReceiver.Dispose();
+                vitalSignsUdpClient.Dispose();
+                waveformUdpClient.Dispose();
             }
         }
     }
