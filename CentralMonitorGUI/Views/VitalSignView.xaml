@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" 
-             d:DesignHeight="80" d:DesignWidth="140"
+             d:DesignHeight="100" d:DesignWidth="140"
              Name="Self">
     <Border BorderThickness="2" BorderBrush="Black" DataContext="{Binding ElementName=Self, Path=ViewModel}">
         <Grid>
@@ -22,6 +22,11 @@
                        HorizontalAlignment="Right" Margin="0 57 45 0"/>
             <TextBlock Text="{Binding SpO2}" FontSize="18" FontWeight="Bold"
                        HorizontalAlignment="Right" Margin="0 53 10 0"/>
+
+            <TextBlock Text="NiBP" FontSize="14" FontWeight="Bold"
+                       HorizontalAlignment="Right" Margin="0 76 80 0"/>
+            <TextBlock Text="{Binding NiBP}" FontSize="18" FontWeight="Bold"
+                       HorizontalAlignment="Right" Margin="0 72 10 0"/>
         </Grid>
     </Border>
 </UserControl>

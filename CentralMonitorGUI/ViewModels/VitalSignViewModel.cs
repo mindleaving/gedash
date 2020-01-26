@@ -30,6 +30,12 @@ namespace CentralMonitorGUI.ViewModels
             var spO2Value = Monitor.VitalSignValues.FirstOrDefault(
                 x => x.VitalSignType == VitalSignType.SpO2);
             SpO2 = spO2Value?.Value.ToString() ?? "X";
+
+            var systolicBloodPressure = Monitor.VitalSignValues.FirstOrDefault(
+                x => x.VitalSignType == VitalSignType.SystolicBloodPressure);
+            var diastolicBloodPressure = Monitor.VitalSignValues.FirstOrDefault(
+                x => x.VitalSignType == VitalSignType.DiastolicBloodPressure);
+            NiBP = $"{systolicBloodPressure?.Value.ToString() ?? "X"} / {diastolicBloodPressure?.Value.ToString() ?? "X"}";
         }
 
         private string heartRate = "X";
@@ -62,6 +68,16 @@ namespace CentralMonitorGUI.ViewModels
             set
             {
                 spO2 = value; 
+                OnPropertyChanged();
+            }
+        }
+        private string niBp = "X / X";
+        public string NiBP
+        {
+            get => niBp;
+            set
+            {
+                niBp = value;
                 OnPropertyChanged();
             }
         }

@@ -107,9 +107,9 @@ namespace NetworkCommunication
                 case SensorType.BloodPressure:
                     return new List<VitalSignType>
                     {
-                        VitalSignType.DiastolicBloodPressure, 
+                        VitalSignType.MeanArterialPressure,
                         VitalSignType.SystolicBloodPressure, 
-                        VitalSignType.MeanArterialPressure
+                        VitalSignType.DiastolicBloodPressure
                     };
                 case SensorType.SpO2:
                     return new[] {VitalSignType.SpO2, VitalSignType.HeartRate};
