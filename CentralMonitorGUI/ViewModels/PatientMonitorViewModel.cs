@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using CentralMonitorGUI.Views;
+using Commons.Extensions;
 using NetworkCommunication;
 using NetworkCommunication.DataStorage;
 using NetworkCommunication.Objects;
@@ -21,7 +22,6 @@ namespace CentralMonitorGUI.ViewModels
         private bool spO2Enabled = true;
         private EcgLead selectedEcgLead = EcgLead.II;
         private readonly UpdateTrigger updateTrigger;
-        private readonly TimeSpan timeToShow;
         private readonly DataExplorerWindowViewModelFactory dataExplorerWindowViewModelFactory;
         private readonly Dictionary<SensorType, WaveformViewModel> waveformViewModels = new Dictionary<SensorType, WaveformViewModel>();
         private VitalSignViewModel vitalSignValues;
@@ -39,20 +39,19 @@ namespace CentralMonitorGUI.ViewModels
 
         public PatientMonitorViewModel(
             PatientMonitor monitor, 
-            UpdateTrigger updateTrigger, 
-            TimeSpan timeToShow,
+            UpdateTrigger updateTrigger,
             DataExplorerWindowViewModelFactory dataExplorerWindowViewModelFactory)
         {
             Monitor = monitor;
             this.updateTrigger = updateTrigger;
-            this.timeToShow = timeToShow;
             this.dataExplorerWindowViewModelFactory = dataExplorerWindowViewModelFactory;
 
+            TimeToShow = TimeSpan.FromSeconds(10);
             VitalSignValues = new VitalSignViewModel(monitor);
             OpenDataExplorerWindowCommand = new RelayCommand(OpenDataExplorerWindow);
-            EcgWaveform = new WaveformViewModel(SensorType.EcgLeadII, new WaveformBuffer(SensorType.EcgLeadII, 0), updateTrigger, timeToShow);
-            RespirationWaveform = new WaveformViewModel(SensorType.Respiration, new WaveformBuffer(SensorType.Respiration, 0), updateTrigger, timeToShow);
-            SpO2Waveform = new WaveformViewModel(SensorType.SpO2, new WaveformBuffer(SensorType.SpO2, 0), updateTrigger, timeToShow);
+            EcgWaveform = new WaveformViewModel(SensorType.EcgLeadII, new WaveformBuffer(SensorType.EcgLeadII, 0), updateTrigger, TimeToShow);
+            RespirationWaveform = new WaveformViewModel(SensorType.Respiration, new WaveformBuffer(SensorType.Respiration, 0), updateTrigger, TimeToShow);
+            SpO2Waveform = new WaveformViewModel(SensorType.SpO2, new WaveformBuffer(SensorType.SpO2, 0), updateTrigger, TimeToShow);
             alarmTimeoutTimer.Elapsed += AlarmTimeoutTimer_Elapsed;
             monitor.NewWaveformSensorConnected += Monitor_NewWaveformSensorConnected;
             monitor.NewAlarm += Monitor_NewAlarm;
@@ -64,10 +63,12 @@ namespace CentralMonitorGUI.ViewModels
                     sensorType,
                     waveformSource,
                     updateTrigger,
-                    timeToShow);
+                    TimeToShow);
                 waveformViewModels.Add(sensorType, waveformViewModel);
                 SetWaveformViewModel(sensorType, waveformViewModel);
             }
+
+            ExpandCommand = new RelayCommand<bool>(newState => IsExpanded = newState);
         }
 
         private void AlarmTimeoutTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -97,7 +98,7 @@ namespace CentralMonitorGUI.ViewModels
                 sensorType,
                 waveformSource,
                 updateTrigger,
-                timeToShow);
+                TimeToShow);
             waveformViewModels[sensorType] = waveformViewModel;
             SetWaveformViewModel(sensorType, waveformViewModel);
         }
@@ -126,7 +127,16 @@ namespace CentralMonitorGUI.ViewModels
         }
 
         public PatientMonitor Monitor { get; }
-
+        private TimeSpan timeToShow;
+        public TimeSpan TimeToShow
+        {
+            get => timeToShow;
+            private set
+            {
+                timeToShow = value;
+                waveformViewModels.Values.ForEach(waveFormViewModel => waveFormViewModel.TimeToShow = timeToShow);
+            }
+        }
 
         public Alarm ActiveAlarm
         {
@@ -273,7 +283,7 @@ namespace CentralMonitorGUI.ViewModels
                         ecgSensorType,
                         new WaveformBuffer(ecgSensorType, 0),
                         updateTrigger,
-                        timeToShow);
+                        TimeToShow);
                 }
                 OnPropertyChanged();
             }
@@ -288,6 +298,19 @@ namespace CentralMonitorGUI.ViewModels
                 OnPropertyChanged();
             }
         }
+        private bool isExpanded;
+        public bool IsExpanded
+        {
+            get => isExpanded;
+            set
+            {
+                isExpanded = value;
+                TimeToShow = isExpanded ? TimeSpan.FromSeconds(30) : TimeSpan.FromSeconds(10);
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand ExpandCommand { get; }
 
         private void OpenDataExplorerWindow()
         {

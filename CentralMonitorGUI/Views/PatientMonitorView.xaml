@@ -4,11 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:views="clr-namespace:CentralMonitorGUI.Views"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
-             d:DesignHeight="180" d:DesignWidth="1000"
+             d:DesignHeight="400" d:DesignWidth="1000"
              Name="Self">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <system:Boolean x:Key="True">True</system:Boolean>
+        <system:Boolean x:Key="False">False</system:Boolean>
     </UserControl.Resources>
     <Border BorderBrush="{Binding BorderBrush}" BorderThickness="3"
             DataContext="{Binding ElementName=Self, Path=ViewModel}">
@@ -18,8 +21,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <DockPanel Grid.Row="0" Background="{Binding InfoBarBackground}"
-                        Margin="5 0">
+            <DockPanel Grid.Row="0" Background="{Binding InfoBarBackground}">
                 <Label Content="Ward: " VerticalAlignment="Bottom"/>
                 <Label Content="{Binding Monitor.WardName}" FontWeight="Bold" FontSize="14" VerticalAlignment="Bottom"/>
                 <Label Content="Bed: " VerticalAlignment="Bottom"/>
@@ -33,35 +35,115 @@
                 
                 <Button Content="Details..." Command="{Binding OpenDataExplorerWindowCommand}" Width="70" Margin="2" HorizontalAlignment="Right"/>
             </DockPanel>
-            <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto" MinWidth="120"/>
-                </Grid.ColumnDefinitions>
+            <ContentControl Grid.Row="1">
+                <ContentControl.Style>
+                    <Style TargetType="{x:Type ContentControl}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsExpanded, FallbackValue=False}" Value="True">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate>
+                                            <Grid Height="500" VerticalAlignment="Top">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
 
-                <!-- Sensor selection -->
-                <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" Margin="5 0">
-                    <ComboBox ItemsSource="{Binding EcgLeads}" SelectedItem="{Binding SelectedEcgLead}"/>
-                    <ToggleButton Content="ECG" IsChecked="{Binding EcgEnabled}" Margin="0 2"/>
-                    <ToggleButton Content="RR"  IsChecked="{Binding RespirationEnabled}" Margin="0 2"/>
-                    <ToggleButton Content="SpO2" IsChecked="{Binding SpO2Enabled}" Margin="0 2"/>
-                </StackPanel>
+                                                <!-- Sensor selection -->
+                                                <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Top" Margin="5 10">
+                                                    <ComboBox ItemsSource="{Binding EcgLeads}" SelectedItem="{Binding SelectedEcgLead}"/>
+                                                    <ToggleButton Content="ECG" IsChecked="{Binding EcgEnabled}" Margin="0 2"/>
+                                                    <ToggleButton Content="RR"  IsChecked="{Binding RespirationEnabled}" Margin="0 2"/>
+                                                    <ToggleButton Content="SpO2" IsChecked="{Binding SpO2Enabled}" Margin="0 2"/>
 
-                <!-- Waveforms -->
-                <Grid Grid.Column="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <views:WaveformView Grid.Column="0" ViewModel="{Binding EcgWaveform}" Visibility="{Binding EcgEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                    <views:WaveformView Grid.Column="1" ViewModel="{Binding RespirationWaveform}" Visibility="{Binding RespirationEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                    <views:WaveformView Grid.Column="2" ViewModel="{Binding SpO2Waveform}" Visibility="{Binding SpO2Enabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                </Grid>
+                                                    <Button Command="{Binding ExpandCommand}" CommandParameter="{StaticResource False}" Margin="0 10 0 0">Collapse</Button>
+                                                </StackPanel>
 
-                <views:VitalSignView Grid.Column="2" ViewModel="{Binding VitalSignValues}"/>
-            </Grid>
+                                                <!-- Waveforms -->
+                                                <Grid Grid.Column="1">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="*"/>
+                                                        <RowDefinition Height="*"/>
+                                                        <RowDefinition Height="*"/>
+                                                        <RowDefinition Height="*"/>
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto" MinWidth="160"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <views:WaveformView Grid.Row="0" Grid.Column="0" ViewModel="{Binding EcgWaveform}" Visibility="{Binding EcgEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                                    <DockPanel Grid.Row="0" Grid.Column="1">
+                                                        <TextBlock Text="HR"/>
+                                                        <TextBlock Text="{Binding VitalSignValues.HeartRate}" FontSize="80" FontWeight="Bold"/>
+                                                    </DockPanel>
+
+                                                    <views:WaveformView Grid.Row="1" Grid.Column="0" ViewModel="{Binding RespirationWaveform}" Visibility="{Binding RespirationEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                                    <DockPanel Grid.Row="1" Grid.Column="1">
+                                                        <TextBlock Text="RR"/>
+                                                        <TextBlock Text="{Binding VitalSignValues.RespirationRate}" FontSize="80" FontWeight="Bold"/>
+                                                    </DockPanel>
+
+                                                    <views:WaveformView Grid.Row="2" Grid.Column="0" ViewModel="{Binding SpO2Waveform}" Visibility="{Binding SpO2Enabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                                    <DockPanel Grid.Row="2" Grid.Column="1">
+                                                        <TextBlock Text="SpO2"/>
+                                                        <TextBlock Text="{Binding VitalSignValues.SpO2}" FontSize="80" FontWeight="Bold"/>
+                                                    </DockPanel>
+
+
+                                                    <DockPanel Grid.Row="3" Grid.Column="1">
+                                                        <TextBlock Text="NiBP"/>
+                                                        <TextBlock Text="{Binding VitalSignValues.NiBP}" FontSize="80" FontWeight="Bold"/>
+                                                    </DockPanel>
+
+                                                </Grid>
+                                            </Grid>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsExpanded, FallbackValue=False}" Value="False">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate>
+                                            <Grid Height="160" VerticalAlignment="Top">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto" MinWidth="120"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Sensor selection -->
+                                                <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Top" Margin="5 10">
+                                                    <ComboBox ItemsSource="{Binding EcgLeads}" SelectedItem="{Binding SelectedEcgLead}"/>
+                                                    <ToggleButton Content="ECG" IsChecked="{Binding EcgEnabled}" Margin="0 2"/>
+                                                    <ToggleButton Content="RR"  IsChecked="{Binding RespirationEnabled}" Margin="0 2"/>
+                                                    <ToggleButton Content="SpO2" IsChecked="{Binding SpO2Enabled}" Margin="0 2"/>
+
+                                                    <Button Command="{Binding ExpandCommand}" CommandParameter="{StaticResource True}" Margin="0 10 0 0">Expand</Button>
+                                                </StackPanel>
+
+                                                <!-- Waveforms -->
+                                                <Grid Grid.Column="1">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <views:WaveformView Grid.Column="0" ViewModel="{Binding EcgWaveform}" Visibility="{Binding EcgEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                                    <views:WaveformView Grid.Column="1" ViewModel="{Binding RespirationWaveform}" Visibility="{Binding RespirationEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                                    <views:WaveformView Grid.Column="2" ViewModel="{Binding SpO2Waveform}" Visibility="{Binding SpO2Enabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                                </Grid>
+
+                                                <views:VitalSignView Grid.Column="2" ViewModel="{Binding VitalSignValues}"/>
+                                            </Grid>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContentControl.Style>
+            </ContentControl>
         </Grid>
     </Border>
 </UserControl>

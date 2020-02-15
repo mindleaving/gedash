@@ -25,7 +25,7 @@
         <ItemsControl Grid.Row="1" ItemsSource="{Binding Monitors}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <views:PatientMonitorView ViewModel="{Binding}" Height="180"/>
+                    <views:PatientMonitorView ViewModel="{Binding}"/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

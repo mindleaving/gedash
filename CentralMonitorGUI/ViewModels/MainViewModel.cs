@@ -13,7 +13,6 @@ namespace CentralMonitorGUI.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
-        private readonly TimeSpan timeToShow = TimeSpan.FromSeconds(10);
         private readonly UpdateTrigger updateTrigger;
         private readonly FileManager fileManager;
         private readonly DataExplorerWindowViewModelFactory dataExplorerWindowViewModelFactory;
@@ -42,8 +41,7 @@ namespace CentralMonitorGUI.ViewModels
         {
             var viewModel = new PatientMonitorViewModel(
                 newMonitor,
-                updateTrigger, 
-                timeToShow,
+                updateTrigger,
                 dataExplorerWindowViewModelFactory);
             Monitors.Add(viewModel);
         }
@@ -54,7 +52,7 @@ namespace CentralMonitorGUI.ViewModels
                 monitor => monitor.Monitor.Equals(disappearedMonitor));
             if(viewModelToBeRemoved == null)
                 return;
-            Application.Current.Dispatcher.BeginInvoke(new Action(() => Monitors.Remove(viewModelToBeRemoved)));
+            Application.Current.Dispatcher?.BeginInvoke(new Action(() => Monitors.Remove(viewModelToBeRemoved)));
         }
 
         public ObservableCollection<PatientMonitorViewModel> Monitors { get; } = new ObservableCollection<PatientMonitorViewModel>();

@@ -5,6 +5,7 @@ using NetworkCommunication;
 using NetworkCommunication.DataStorage;
 using NetworkCommunication.Objects;
 using OxyPlot;
+using OxyPlot.Axes;
 using OxyPlot.Series;
 
 namespace CentralMonitorGUI.ViewModels
@@ -12,10 +13,8 @@ namespace CentralMonitorGUI.ViewModels
     public class WaveformViewModel : ViewModelBase, IDisposable
     {
         private readonly IWaveformSource waveformSource;
-        private readonly TimeSpan timeToShow;
         private readonly UpdateTrigger updateTrigger;
         private readonly int sampleCountPerUpdate;
-        private readonly int sampleCount;
         private int sampleIdx;
 
         public WaveformViewModel(
@@ -25,12 +24,10 @@ namespace CentralMonitorGUI.ViewModels
             TimeSpan timeToShow)
         {
             this.waveformSource = waveformSource;
-            this.timeToShow = timeToShow;
             this.updateTrigger = updateTrigger;
             SensorType = sensorType;
+            TimeToShow = timeToShow;
             sampleCountPerUpdate = Informations.SensorBatchSizes[sensorType];
-            var samplesPerSecond = Informations.SensorBatchesPerSecond * Informations.SensorBatchSizes[sensorType];
-            sampleCount = (int) (timeToShow.TotalSeconds * samplesPerSecond);
             SetupPlotModel();
             updateTrigger.Trig += UpdateTrigger_Trig;
         }
@@ -56,7 +53,16 @@ namespace CentralMonitorGUI.ViewModels
 
         private void SetupPlotModel()
         {
-            PlotModel = new PlotModel();
+            PlotModel = new PlotModel
+            {
+                Axes = { new LinearAxis
+                {
+                    Position = AxisPosition.Bottom,
+                    IsAxisVisible = false,
+                    IsZoomEnabled = false,
+                    IsPanEnabled = false
+                }}
+            };
 
             var sensorColor = MapSensorTypeToBrush(SensorType);
             PlotModel.Series.Add(new LineSeries
@@ -72,6 +78,8 @@ namespace CentralMonitorGUI.ViewModels
         {
             if(isUpdating)
                 return;
+            var samplesPerSecond = Informations.SensorBatchesPerSecond * Informations.SensorBatchSizes[SensorType];
+            var sampleCount = (int) (TimeToShow.TotalSeconds * samplesPerSecond);
             lock (PlotModel.SyncRoot)
             {
                 isUpdating = true;
@@ -92,6 +100,7 @@ namespace CentralMonitorGUI.ViewModels
         }
 
         public SensorType SensorType { get; }
+        public TimeSpan TimeToShow { get; set; }
         public PlotModel PlotModel { get; private set; }
 
         public void Dispose()

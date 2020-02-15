@@ -43,7 +43,7 @@ namespace NetworkCommunication.Objects
         {
             foreach (var sensorType in waveformCollection.SensorWaveforms.Keys)
             {
-                if(!Informations.IsWaveformSensorType(sensorType))
+                if(!sensorType.IsWaveformSensorType())
                     continue;
                 var waveformValues = waveformCollection.SensorWaveforms[sensorType];
                 if(!WaveformSources.ContainsKey(sensorType))
