@@ -9,6 +9,7 @@ using NetworkCommunication.Objects;
 using OxyPlot;
 using OxyPlot.Annotations;
 using OxyPlot.Axes;
+using OxyPlot.Legends;
 using OxyPlot.Series;
 using Annotation = NetworkCommunication.Objects.Annotation;
 
@@ -32,11 +33,17 @@ namespace CentralMonitorGUI.ViewModels
             PlotModel = new PlotModel
             {
                 Title = "Vital signs",
-                LegendPlacement = LegendPlacement.Inside,
-                LegendItemAlignment = HorizontalAlignment.Right,
-                LegendBackground = OxyColor.FromRgb(255, 255, 255),
-                LegendBorder = OxyColor.FromRgb(60, 60, 60),
-                LegendBorderThickness = 2,
+                Legends =
+                {
+                    new Legend
+                    {
+                        LegendPlacement = LegendPlacement.Inside,
+                        LegendItemAlignment = HorizontalAlignment.Right,
+                        LegendBackground = OxyColor.FromRgb(255, 255, 255),
+                        LegendBorder = OxyColor.FromRgb(60, 60, 60),
+                        LegendBorderThickness = 2
+                    }
+                },
                 IsLegendVisible = true,
                 Padding = new OxyThickness(30, 0, 10, 0)
             };

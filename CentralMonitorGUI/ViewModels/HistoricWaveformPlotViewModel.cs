@@ -9,6 +9,7 @@ using NetworkCommunication.Objects;
 using OxyPlot;
 using OxyPlot.Annotations;
 using OxyPlot.Axes;
+using OxyPlot.Legends;
 using OxyPlot.Series;
 using Annotation = NetworkCommunication.Objects.Annotation;
 
@@ -43,10 +44,16 @@ namespace CentralMonitorGUI.ViewModels
             };
             PlotModel = new PlotModel
             {
-                LegendBackground = OxyColor.FromRgb(255,255,255),
-                LegendBorder = OxyColor.FromRgb(0,0,0),
-                LegendBorderThickness = 2,
-                LegendPosition = LegendPosition.TopRight
+                Legends =
+                {
+                    new Legend
+                    {
+                        LegendBackground = OxyColor.FromRgb(255,255,255),
+                        LegendBorder = OxyColor.FromRgb(0,0,0),
+                        LegendBorderThickness = 2,
+                        LegendPosition = LegendPosition.TopRight
+                    }
+                }
             };
             PlotModel.Axes.Add(xAxis);
             PlotModel.Axes.Add(yAxis);
