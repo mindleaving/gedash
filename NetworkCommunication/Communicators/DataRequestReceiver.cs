@@ -50,8 +50,12 @@ namespace NetworkCommunication.Communicators
             switch (request.Buffer[23])
             {
                 case 0x29:
+                case 0x2A:
+                case 0x2B:
                     return DataRequestType.VitalSigns;
-                case 0x0b:
+                case 0x0B:
+                case 0x0C:
+                case 0x0D:
                     return DataRequestType.Waveform;
                 default:
                     throw new ArgumentOutOfRangeException();
