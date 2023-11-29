@@ -14,11 +14,6 @@ namespace NetworkCommunication
     {
         public static void Main(string[] args)
         {
-            if (args.Length < 1)
-            {
-                Console.WriteLine("Usage: NetworkCommunication <IP address>");
-                return;
-            }
 
             var ourIpAddress = IPAddress.Parse("192.168.1.33");
             var broadcastAddress = IPAddress.Parse("192.168.1.255");
