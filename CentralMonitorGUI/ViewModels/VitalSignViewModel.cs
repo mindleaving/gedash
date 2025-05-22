@@ -1,7 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Timers;
+﻿using System.Timers;
 using NetworkCommunication.Objects;
+using Timer = System.Timers.Timer;
 
 namespace CentralMonitorGUI.ViewModels
 {
