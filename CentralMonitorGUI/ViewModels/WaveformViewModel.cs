@@ -74,7 +74,7 @@ namespace CentralMonitorGUI.ViewModels
         }
 
         private volatile bool isUpdating;
-        private void UpdateTrigger_Trig(object sender, EventArgs e)
+        private void UpdateTrigger_Trig(object? sender, EventArgs e)
         {
             if(isUpdating)
                 return;

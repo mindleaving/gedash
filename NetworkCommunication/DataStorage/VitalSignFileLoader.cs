@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Globalization;
 using Commons.Mathematics;
 using Commons.Physics;
 using NetworkCommunication.Objects;
@@ -16,14 +14,14 @@ namespace NetworkCommunication.DataStorage
             this.fileManager = fileManager;
         }
 
-        public Dictionary<SensorVitalSignType, TimeSeries<short>> Load(
+        public Dictionary<SensorVitalSignType, TimeSeries<double>> Load(
             string directory, 
             Range<DateTime> timeRange, 
             IReadOnlyList<SensorType> sensorTypes, 
             IReadOnlyList<VitalSignType> vitalSignTypes)
         {
             var vitalSignFile = Path.Combine(directory, fileManager.GetVitalSignFileName());
-            var timeSeries = new Dictionary<SensorVitalSignType, TimeSeries<short>>();
+            var timeSeries = new Dictionary<SensorVitalSignType, TimeSeries<double>>();
             var sensorTypeHashSet = new HashSet<SensorType>(sensorTypes);
             var vitalSignTypeHashSet = new HashSet<VitalSignType>(vitalSignTypes);
             using (var fileStream = new FileStream(vitalSignFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -54,11 +52,11 @@ namespace NetworkCommunication.DataStorage
                             continue;
 
                         var valueString = splittedLine[columnIdx];
-                        if(!short.TryParse(valueString, out var value))
+                        if(!double.TryParse(valueString, CultureInfo.InvariantCulture, out var value))
                             continue;
-                        var timePoint = new TimePoint<short>(timestamp, value);
+                        var timePoint = new TimePoint<double>(timestamp, value);
                         if(!timeSeries.ContainsKey(senorVitalSignKey))
-                            timeSeries.Add(senorVitalSignKey, new TimeSeries<short>());
+                            timeSeries.Add(senorVitalSignKey, new TimeSeries<double>());
                         timeSeries[senorVitalSignKey].Add(timePoint);
                     }
                 }

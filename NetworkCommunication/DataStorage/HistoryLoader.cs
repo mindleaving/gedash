@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Commons.Mathematics;
+﻿using Commons.Mathematics;
 using Commons.Physics;
 using NetworkCommunication.Objects;
 
@@ -42,7 +38,7 @@ namespace NetworkCommunication.DataStorage
             return new RecordedPatientData(patientInfo, vitalParameters, waveforms);
         }
 
-        public IReadOnlyDictionary<SensorVitalSignType, TimeSeries<short>> GetVitalSignDataInRange(
+        public IReadOnlyDictionary<SensorVitalSignType, TimeSeries<double>> GetVitalSignDataInRange(
             PatientInfo patientInfo,
             Range<DateTime> timeRange,
             IReadOnlyList<SensorType> sensorTypes,
@@ -54,7 +50,7 @@ namespace NetworkCommunication.DataStorage
             var matchingDateDirectories = Directory.GetDirectories(patientDirectory)
                 .Where(dir => IsDateDirectoryInRange(dir, timeRange))
                 .OrderBy(dir => dir);
-            var vitalParameters = new Dictionary<SensorVitalSignType, TimeSeries<short>>();
+            var vitalParameters = new Dictionary<SensorVitalSignType, TimeSeries<double>>();
             foreach (var dateDirectory in matchingDateDirectories)
             {
                 try
@@ -63,7 +59,7 @@ namespace NetworkCommunication.DataStorage
                     foreach (var sensorVitalSignType in directoryVitalParameters.Keys)
                     {
                         if (!vitalParameters.ContainsKey(sensorVitalSignType))
-                            vitalParameters.Add(sensorVitalSignType, new TimeSeries<short>());
+                            vitalParameters.Add(sensorVitalSignType, new TimeSeries<double>());
                         var newData = directoryVitalParameters[sensorVitalSignType];
                         vitalParameters[sensorVitalSignType].AddRange(newData);
                     }

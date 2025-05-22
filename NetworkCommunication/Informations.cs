@@ -142,6 +142,7 @@ namespace NetworkCommunication
         {
             var waveformSensors = new[]
             {
+                SensorType.BloodPressure, // For arterial catheter measurements
                 SensorType.EcgLeadI,
                 SensorType.EcgLeadII,
                 SensorType.EcgLeadIII,

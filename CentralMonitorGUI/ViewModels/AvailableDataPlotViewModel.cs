@@ -36,7 +36,7 @@ namespace CentralMonitorGUI.ViewModels
         }
 
         public PlotModel PlotModel { get; }
-        public Range<DateTime> SelectedTimeRange { get; private set; }
+        public Range<DateTime>? SelectedTimeRange { get; private set; }
 
         public void UpdateDataRange()
         {

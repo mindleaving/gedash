@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Commons.Physics;
+﻿using Commons.Physics;
 using NetworkCommunication.Objects;
 
 namespace NetworkCommunication.DataStorage
@@ -8,7 +7,7 @@ namespace NetworkCommunication.DataStorage
     {
         public RecordedPatientData(
             PatientInfo patientInfo, 
-            IReadOnlyDictionary<SensorVitalSignType, TimeSeries<short>> vitalParameters, 
+            IReadOnlyDictionary<SensorVitalSignType, TimeSeries<double>> vitalParameters, 
             IReadOnlyDictionary<SensorType, TimeSeries<short>> waveforms)
         {
             PatientInfo = patientInfo;
@@ -17,7 +16,7 @@ namespace NetworkCommunication.DataStorage
         }
 
         public PatientInfo PatientInfo { get; }
-        public IReadOnlyDictionary<SensorVitalSignType, TimeSeries<short>> VitalParameters { get; }
+        public IReadOnlyDictionary<SensorVitalSignType, TimeSeries<double>> VitalParameters { get; }
         public IReadOnlyDictionary<SensorType, TimeSeries<short>> Waveforms { get; }
     }
 }

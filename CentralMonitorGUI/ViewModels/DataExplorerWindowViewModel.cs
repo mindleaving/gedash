@@ -39,7 +39,7 @@ namespace CentralMonitorGUI.ViewModels
             AvailableDataPlotViewModel.UpdateDataRange();
         }
 
-        private async void VitalSignPlotViewModel_PropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
+        private async void VitalSignPlotViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs propertyChangedEventArgs)
         {
             if(propertyChangedEventArgs.PropertyName != nameof(VitalSignPlotViewModel.SelectedTime))
                 return;
@@ -69,11 +69,12 @@ namespace CentralMonitorGUI.ViewModels
 
         private async Task LoadVitalSignDataForTimeRange(Range<DateTime> timeRange)
         {
-            var sensorTypes = new[] {SensorType.SpO2, SensorType.Ecg, SensorType.BloodPressure, SensorType.Respiration}; // TODO
+            var sensorTypes = new[] {SensorType.SpO2, SensorType.Ecg, SensorType.BloodPressure, SensorType.Respiration, SensorType.tCO2 }; // TODO
             var vitalSignTypes = new[]
             {
                 VitalSignType.SpO2, VitalSignType.HeartRate, VitalSignType.RespirationRate,
-                VitalSignType.SystolicBloodPressure, VitalSignType.DiastolicBloodPressure
+                VitalSignType.SystolicBloodPressure, VitalSignType.DiastolicBloodPressure, VitalSignType.MeanArterialPressure,
+                VitalSignType.pCO2, VitalSignType.pO2
             };
             var vitalSignData = await Task.Run(() =>
                 historyLoader.GetVitalSignDataInRange(patientInfo, timeRange, sensorTypes, vitalSignTypes));

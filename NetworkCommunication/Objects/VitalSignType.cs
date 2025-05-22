@@ -10,6 +10,8 @@
         SystolicBloodPressure,
         DiastolicBloodPressure,
         MeanArterialPressure,
-        Temperature
+        Temperature,
+        pCO2,
+        pO2
     }
 }

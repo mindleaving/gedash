@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 using Commons.Extensions;
 using Commons.Mathematics;
 using Commons.Physics;
@@ -21,7 +18,7 @@ namespace CentralMonitorGUI.ViewModels
         private readonly Dictionary<VitalSignType, Axis> vitalSignTypeAxes;
         private DateTime selectedTime;
         private readonly SelectedTime globalSelectedTime;
-        private OxyPlot.Annotations.Annotation timeAnnotation;
+        private OxyPlot.Annotations.Annotation? timeAnnotation;
         private Range<DateTime> loadedTimeRange;
 
         public VitalSignPlotViewModel(SelectedTime selectedTime)
@@ -64,7 +61,7 @@ namespace CentralMonitorGUI.ViewModels
         }
 
         public void PlotData(
-            IReadOnlyDictionary<SensorVitalSignType, TimeSeries<short>> vitalSignData,
+            IReadOnlyDictionary<SensorVitalSignType, TimeSeries<double>> vitalSignData,
             Range<DateTime> focusedTimeRange)
         {
             loadedTimeRange = focusedTimeRange;
@@ -96,7 +93,7 @@ namespace CentralMonitorGUI.ViewModels
             PlotModel.InvalidatePlot(true);
         }
 
-        private void Series_MouseDown(object sender, OxyMouseDownEventArgs e)
+        private void Series_MouseDown(object? sender, OxyMouseDownEventArgs e)
         {
             if (e.ChangedButton != OxyMouseButton.Left)
                 return;
@@ -121,7 +118,7 @@ namespace CentralMonitorGUI.ViewModels
             PlotModel.InvalidatePlot(false);
         }
 
-        private IEnumerable<DataPoint> ConvertTimeSeriesToPointList(TimeSeries<short> timeSeries)
+        private IEnumerable<DataPoint> ConvertTimeSeriesToPointList(TimeSeries<double> timeSeries)
         {
             return timeSeries.Select(timePoint => DateTimeAxis.CreateDataPoint(timePoint.Time, timePoint.Value));
         }
@@ -132,11 +129,13 @@ namespace CentralMonitorGUI.ViewModels
             return new Dictionary<VitalSignType, Axis>
             {
                 { VitalSignType.HeartRate, CreateYAxis("HR","1/min", 0, 0, 200) },
-                { VitalSignType.SpO2, CreateYAxis("SpO2", "%", 25, 70, 110) },
                 { VitalSignType.RespirationRate, CreateYAxis("RR", "1/min", 50, 0, 50) },
+                { VitalSignType.SpO2, CreateYAxis("SpO2", "%", 25, 50, 102) },
                 { VitalSignType.SystolicBloodPressure, bloodPressureAxis },
                 { VitalSignType.DiastolicBloodPressure, bloodPressureAxis },
-                { VitalSignType.MeanArterialPressure, bloodPressureAxis }
+                { VitalSignType.MeanArterialPressure, bloodPressureAxis },
+                { VitalSignType.pCO2, bloodPressureAxis },
+                { VitalSignType.pO2, bloodPressureAxis },
             };
         }
 

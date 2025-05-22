@@ -28,7 +28,8 @@ namespace CentralMonitorGUI.ViewModels
         private OxyPlot.Annotations.Annotation line1;
         private OxyPlot.Annotations.Annotation line2;
 
-        public HistoricWaveformPlotViewModel(SelectedTime selectedTime)
+        public HistoricWaveformPlotViewModel(
+            SelectedTime selectedTime)
         {
             this.selectedTime = selectedTime;
             xAxis = new LinearAxis
@@ -201,6 +202,8 @@ namespace CentralMonitorGUI.ViewModels
                     return Colors.DodgerBlue;
                 case SensorType.Temperature:
                     return Colors.Green;
+                case SensorType.BloodPressure:
+                    return Colors.Red;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(sensorType), sensorType, null);
             }
@@ -231,6 +234,8 @@ namespace CentralMonitorGUI.ViewModels
                     return 12;
                 case SensorType.EcgLeadPrecordial:
                     return 13;
+                case SensorType.BloodPressure:
+                    return 21;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(sensorType), sensorType, null);
             }

@@ -15,6 +15,7 @@
         EcgLeadPrecordial = 0x59,
         
         
+        tCO2,
 
         Undefined,
         Raw
